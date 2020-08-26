@@ -123,7 +123,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
             tmp, hum = temp.split()
             # print(tmp)
-            print(hum)
+            # print(hum)
             if float(hum) == 100.00:
                 print('read again')
                 self.get_real_time_reading()
