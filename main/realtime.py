@@ -29,6 +29,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         self.timedate_data = []
         self.temperature_data = []
         self.humidity_data = []
+        self.pressure_data = []
         self.write_yes = False
         self.savingText.hide()
         self.savingText.setStyleSheet('color:red;')
@@ -84,6 +85,12 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
         TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
 
+    def clear_temporary(self):
+        self.temperature_data.clear()
+        self.humidity_data.clear()
+        self.timedate_data.clear()
+        self.pressure_data.clear()
+
     def task_done_callback(self, response):
 
         if 'exception' in response:
@@ -116,12 +123,16 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
             tmp, hum = temp.split()
             # print(tmp)
-            # print(hum)
-            self.temp_lcd.display(float(tmp))
-            self.hum_lcd.display(float(hum))
-            self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
-            self.temperature_data.append(tmp)
-            self.humidity_data.append(hum)
+            print(hum)
+            if float(hum) == 100.00:
+                print('read again')
+                self.get_real_time_reading()
+            else:
+                self.temp_lcd.display(float(tmp))
+                self.hum_lcd.display(float(hum))
+                self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
+                self.temperature_data.append(tmp)
+                self.humidity_data.append(hum)
 
     def apply_rules_to_values(self, vals):
         c1, c2, c3, r = utils.READ_CONST_RESPONSE.split(' ')
@@ -155,6 +166,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
             self.btn_reading_start.setDisabled(False)
             self.spinBox.setDisabled(False)
             self.savingText.hide()
+            self.clear_temporary()
             event.accept()
         else:
 
@@ -199,9 +211,11 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText("Data saved"+"\nFile: " + self.save_file_name[0])
             msg_box.setWindowTitle("Done")
+            self.clear_temporary()
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec_()
         except:
+            self.clear_temporary()
             msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Critical)
             msg_box.setText("Data saving aborted")
