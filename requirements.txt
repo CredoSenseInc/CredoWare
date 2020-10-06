@@ -18,3 +18,5 @@ python-dateutil==2.8.1
 sentry-sdk==0.14.1
 six==1.13.0
 urllib3==1.25.8
+pyqt5
+semantic-version

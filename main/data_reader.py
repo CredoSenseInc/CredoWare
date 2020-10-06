@@ -24,9 +24,9 @@ class DataReader(metaclass=SingletonMeta):
         return self.ser.isOpen()
 
     def open(self, url):
-
+        print(url)
         if self.ser is None:
-            self.ser = serial.Serial(url, 2000000, timeout=None)
+            self.ser = serial.Serial(url, 2000000, timeout=3)
             time.sleep(2)
             print('port opened')
         elif not self.is_port_open():
@@ -36,7 +36,10 @@ class DataReader(metaclass=SingletonMeta):
 
     def close(self):
         if self.ser and self.is_port_open():
+            self.ser.reset_input_buffer()
+            self.ser.reset_output_buffer()
             self.ser.close()
+            self.ser = None
             print('port closed')
 
     def read_data(self, task_type):
@@ -47,6 +50,8 @@ class DataReader(metaclass=SingletonMeta):
         # print('aise toh')
         data_lst = []
         while True:
+            if not self.is_port_open():
+                break
             try:
                 data = self.ser.readline().decode('utf-8').rstrip('\r\n')
             except:
