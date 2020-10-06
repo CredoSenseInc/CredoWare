@@ -95,7 +95,8 @@ def do_task(task_type, new_data):
         raise Exception("Device not found")
 
     if task_type == TaskTypes.SERIAL_OPEN:
-        device = dr.get_connected_device()
+        # dev = dr.get_connected_device()
+        # print(device.device)
         dr.open(device.device)
         return 'OK'
 

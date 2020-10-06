@@ -4,8 +4,8 @@ import os, sys, subprocess
 
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import QTimer, QDateTime, QDate, QTime, Qt
-import about_window
-from PyQt5.QtGui import QMovie
+# import about_window
+# from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import *
 from main_window import Ui_MainWindow
 # from sentry_sdk import capture_exception
@@ -186,7 +186,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def check_device_connectivity_status(self):
         dr = DataReader()
         device = dr.get_connected_device()
-
+        # print(device)
         if device:
             if not self.queue_timer.isActive():
                 self.queue_timer.start()
@@ -202,6 +202,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.disconnect_buttons()
                 except TypeError:
                     pass
+            # else:
+            #     print('port is already open')
         else:
             self.after_device_not_found_change()
 
@@ -414,12 +416,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             data = response['data']
 
             if data == 'no_device':
-                self.label_device_id.setText('No logger found !')
+                self.label_device_id.setText('Connect a CSL Series Logger in programming mode')
                 self.label_device_id.setStyleSheet('color:red;')
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
             elif data == 'not_found':
-                self.label_device_id.setText('Logger found but not in programming mode !')
+                self.label_device_id.setText('Connect a CSL Series Logger in programming mode')
                 self.label_device_id.setStyleSheet('color:orange')
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
