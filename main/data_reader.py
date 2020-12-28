@@ -1,22 +1,25 @@
 import time
 import serial.tools.list_ports
 from MySingleton import SingletonMeta
-from utils import DEVICE_MANUFACTURER
 
 
 class DataReader(metaclass=SingletonMeta):
 
     def __init__(self):
         self.ser = None
+        self.ports = []
 
     def get_connected_device(self):
-        ports = serial.tools.list_ports.comports()
+        self.ports = serial.tools.list_ports.comports(include_links=True)
         device = None
-        for each in ports:
-            if each.manufacturer == DEVICE_MANUFACTURER:
+        for each in self.ports:
+            if each.vid == 1027:
                 device = each
                 break
+
         return device
+
+
 
     def is_port_open(self):
         if self.ser is None:

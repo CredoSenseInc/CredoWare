@@ -183,6 +183,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_system_time()
         self.update_device_time()
 
+
     def check_device_connectivity_status(self):
         dr = DataReader()
         device = dr.get_connected_device()
@@ -206,6 +207,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #     print('port is already open')
         else:
             self.after_device_not_found_change()
+
+
 
     def after_device_not_found_change(self):
         self.queue_timer.stop()
