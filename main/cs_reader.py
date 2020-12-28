@@ -186,7 +186,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def check_device_connectivity_status(self):
         dr = DataReader()
         device = dr.get_connected_device()
-        # print(device)
+        print(f'searching for device, found {device}')
         if device:
             if not self.queue_timer.isActive():
                 self.queue_timer.start()
