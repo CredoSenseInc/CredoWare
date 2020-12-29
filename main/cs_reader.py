@@ -15,14 +15,15 @@ from data_reader import DataReader
 from logger_data_plot import LoggerPlotWindow
 from realtime import MyRealTimeWindow
 from about import MyAboutWindow
+from port_select import MyPortSelectWindow
 from reset_device import Reset
 from task_consumer import TaskConsumer, TaskTypes, Task
 from utils import CONSCIOUS_BATTERY_LEVEL
 
 # import sentry_sdk
-import rollbar
+# import rollbar
 
-rollbar.init('480a6e722bdc45bca0ebe39e4d2a5e4b')
+# rollbar.init('480a6e722bdc45bca0ebe39e4d2a5e4b')
 # sentry_sdk.init("https://e6fdc5ed07fb4248aaf35c1deca4ec8b@sentry.io/2500238")
 
 logging.basicConfig(level=logging.INFO)
@@ -50,11 +51,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
 
         super(MainWindow, self).__init__(*args, **kwargs)
-        self.device_selecton = Reset()
-        self.reading_timer = QTimer()
         self.setupUi(self)
+
+        self.reading_timer = QTimer()
+
+        self.device_selecton = Reset()
         self.real_time_window = MyRealTimeWindow()
         self.about_window = MyAboutWindow()
+        self.port_select_window = MyPortSelectWindow()
+        self.port_select_window.initialize_and_show()
+
+        self.port_select_window.button_select_port.clicked.connect(self.initialize_main_window)
 
         self.actionTurn_ON.triggered.connect(lambda: self.led_on())
         self.actionTrun_OFF.triggered.connect(lambda: self.led_off())
@@ -82,15 +89,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dateTimeEdit_logging_start.hide()
         self.dateTimeEdit_logging_stop.hide()
 
-        self.show()
+        # self.show()
 
         self.queue_timer = QTimer()
-        self.init_queue_task_consumer_thread()
-
         self.miscellaneous_timer = QTimer()
-        self.init_miscellaneous_task_consumer_thread()
-
         self.device_connectivity_status_timer = QTimer()
+
+    def initialize_main_window(self):
+        self.port_select_window.hide()
+        self.show()
+        self.init_timers()
+
+    def init_timers(self):
+        self.init_queue_task_consumer_thread()
+        self.init_miscellaneous_task_consumer_thread()
         self.init_check_device_connectivity_status()
 
     def connect_buttons(self):
@@ -183,11 +195,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_system_time()
         self.update_device_time()
 
-
     def check_device_connectivity_status(self):
         dr = DataReader()
         device = dr.get_connected_device()
-        print(f'searching for device, found {device}')
+        # print(f'searching for device, found {device}')
         if device:
             if not self.queue_timer.isActive():
                 self.queue_timer.start()
@@ -495,9 +506,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.p.setWindowTitle('Generating graph')
             logger_plot_window = LoggerPlotWindow(self)
             try:
-                logger_plot_window.initialize_and_show(1, response['data'])
-                self.p.pbar.setValue(100)
-                self.p.close()
+                if response['data']:
+                    logger_plot_window.initialize_and_show(1, response['data'])
+                    self.p.pbar.setValue(100)
+                    self.p.close()
+                else:
+                    self.p.close()
+                    msg_box = QMessageBox(self)
+                    msg_box.setIcon(QMessageBox.Information)
+                    msg_box.setText("Logger has no data")
+                    msg_box.setWindowTitle("Message")
+                    msg_box.setStandardButtons(QMessageBox.Ok)
+                    msg_box.exec_()
             except:
                 self.show_error_dialog("Error! Data corrupted\nPlease erase all logged data")
                 self.p.close()
@@ -723,33 +743,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 if __name__ == '__main__':
+    # try:
+    app = QApplication([])
+
+    screen_resolution = app.desktop().screenGeometry()
+    width, height = screen_resolution.width(), screen_resolution.height()
+    w = 655
+    h = 885
+    app.setApplicationName("CredoWare")
     try:
-        app = QApplication([])
-
-        screen_resolution = app.desktop().screenGeometry()
-        width, height = screen_resolution.width(), screen_resolution.height()
-        w = 655
-        h = 885
-        app.setApplicationName("CredoWare")
-        try:
-            app.setWindowIcon(QtGui.QIcon("logo.png"))
-        except:
-            pass
-        window = MainWindow()
-
-        if (height < 1000):
-            if width<1000:
-                window.resize(width / 2, height - 150)
-                window.move(int(width / 2 - width / 2 / 2), int(height / 2 - (height - 150) / 2)-(width/100))
-            else:
-                window.resize(600, height - 150)
-                window.move(int(width / 2 - 600 / 2), int(height / 2 - (height - 150) / 2) - (width / 100))
-        else:
-            window.resize(w, h)
-            window.move(int(width / 2 - w / 2), int((height / 2 - h / 2)-(width/100)))
-        app.exec_()
-
+        app.setWindowIcon(QtGui.QIcon("logo.png"))
     except:
-        rollbar.report_exc_info()
-    finally:
         pass
+    window = MainWindow()
+
+    if (height < 1000):
+        if width<1000:
+            window.resize(width / 2, height - 150)
+            window.move(int(width / 2 - width / 2 / 2), int(height / 2 - (height - 150) / 2)-(width/100))
+        else:
+            window.resize(600, height - 150)
+            window.move(int(width / 2 - 600 / 2), int(height / 2 - (height - 150) / 2) - (width / 100))
+    else:
+        window.resize(w, h)
+        window.move(int(width / 2 - w / 2), int((height / 2 - h / 2)-(width/100)))
+    app.exec_()
+
+    # except:
+        # rollbar.report_exc_info()
+        # print('error')
+        # pass
+    # finally:
+    #     pass

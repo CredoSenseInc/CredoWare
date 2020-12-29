@@ -36,6 +36,8 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
     def initialize_and_show(self):
         self.temp_lcd.display(0)
+        self.hum_lcd.display(0)
+        self.pre_lcd.display(0)
         self.show()
 
     def start_pressed(self):

@@ -33,15 +33,19 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
         self.end_dt = ''
         self.interval = interval
         self.data = data
-        self.populate_graph()
-        self.setWindowTitle("Loggeed Data")
+
+        if self.data != []:
+            self.populate_graph()
+            self.setWindowTitle("Loggeed Data")
+            self.show()
+
         if self.iserror == '1' and self.data != []:
             msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Warning)
             msg_box.setText("Memroy error found in logger\nErase logger data before starting new session")
             msg_box.setWindowTitle("Warning")
             msg_box.exec_()
-        self.show()
+
 
     def generate_report(self):
         msg_box = QMessageBox(self)
@@ -376,6 +380,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                                                 label='Temperature', color='r', marker='.')
                 self.MplWidget.canvas.axes2.plot(self.timedate_data, self.float_hum_data, linestyle='solid',
                                                  label='Relative Humidity(%)', color='b', marker='.')
+
                 self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
                 self.MplWidget.canvas.axes2.xaxis.set_major_locator(mdates.AutoDateLocator())
                 self.MplWidget.canvas.axes.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
@@ -399,13 +404,13 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.label.show()
                 for i in range(0, len(self.temperature_data)):
                     self.temperature_data[i] = (self.apply_rules_to_values(float(self.temperature_data[i])))
-                # print(self.temperature_data)
-                # print(self.timedate_data)
+
                 self.MplWidget.canvas.axes = self.MplWidget.canvas.figure.add_subplot(111)
                 self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
                 self.MplWidget.canvas.axes.set_ylabel('Temperature', fontweight='bold')
                 self.MplWidget.canvas.axes.plot(self.timedate_data, self.temperature_data, linestyle='solid',
                                                 label='Temperature', color='r', marker='.')
+
                 self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
                 self.MplWidget.canvas.axes.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
                 self.MplWidget.canvas.axes.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
@@ -420,13 +425,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
 
     def apply_rules_to_values(self, vals):
         c1, c2, c3, r = utils.READ_CONST_RESPONSE.split(' ')
-        # c1 = self.convert_logarithm(c1.split('=')[1])
-        # c2 = self.convert_logarithm(c2.split('=')[1])
-        # c3 = self.convert_logarithm(c3.split('=')[1])
-        # c1 = float(c1.split('=')[1])
-        # c1 = float(c1.split('=')[1])
-        # c1 = float(c1.split('=')[1])
-        # r = int(r.split('=')[1])
+
         c1 = c1.split('=')[1]
         c2 = c2.split('=')[1]
         c3 = c3.split('=')[1]
@@ -436,9 +435,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
         c3 = float(c3)
         r = float(r)
         combo_index = self.comboBox_temp_unit.currentIndex()
-        # print("index:")
-        # print(combo_index)
-        # for each in vals:
+
         temp = math.log(r * ((1023.0 / vals) - 1))
         val = 1 / (c1 + (c2 + (c3 * temp * temp)) * temp)
         if combo_index == 0:

@@ -16,10 +16,7 @@ class DataReader(metaclass=SingletonMeta):
             if each.vid == 1027:
                 device = each
                 break
-
         return device
-
-
 
     def is_port_open(self):
         if self.ser is None:
