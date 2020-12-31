@@ -15,7 +15,7 @@ from data_reader import DataReader
 from logger_data_plot import LoggerPlotWindow
 from realtime import MyRealTimeWindow
 from about import MyAboutWindow
-from port_select import MyPortSelectWindow
+# from port_select import MyPortSelectWindow
 from reset_device import Reset
 from task_consumer import TaskConsumer, TaskTypes, Task
 from utils import CONSCIOUS_BATTERY_LEVEL

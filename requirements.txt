@@ -7,3 +7,4 @@ numpy==1.17.4
 PyQt5==5.13.1
 pyqtgraph==0.10.0
 pyserial==3.4
+semantic_version~=2.8.5
