@@ -1,24 +1,23 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar, QWidget, QPushButton
-from PyQt5.QtCore import QBasicTimer
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget
+
+from loading_widget import Ui_ProgBar
 
 
-class ProgBar(QWidget):
+# class ProgBar(QtWidgets):
+#
+#     def __init__(self):
+#         super().__init__()
+#         progressbar = Ui_ProgBar()
+#         self.progress_window = progressbar.setupUi()
+#         self.progress_window.show
 
-    def __init__(self):
-        super().__init__()
+class ProgBar(QWidget, Ui_ProgBar):
 
-        self.initUI()
+    def __init__(self, parent=None):
+        super(ProgBar, self).__init__(parent)
 
-    def initUI(self):
-        self.pbar = QProgressBar(self)
-        self.pbar.setValue(10)
-        self.setWindowTitle('Reading data, please wait')
-        self.resize(500,50)
-        self.pbar.resize(500,30)
-        self.show()
-
+        self.setupUi(self)
 
 # class CustomDialog(QDialog):
 #

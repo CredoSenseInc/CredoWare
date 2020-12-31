@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main_window.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -542,6 +542,9 @@ class Ui_MainWindow(object):
         self.reconnect_button.setObjectName("reconnect_button")
         self.gridLayout.addWidget(self.reconnect_button, 1, 3, 1, 1)
         self.label_18 = QtWidgets.QLabel(self.centralwidget)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        self.label_18.setFont(font)
         self.label_18.setObjectName("label_18")
         self.gridLayout.addWidget(self.label_18, 1, 0, 1, 1, QtCore.Qt.AlignLeft)
         self.btn_real_time_data = QtWidgets.QPushButton(self.centralwidget)
@@ -555,10 +558,30 @@ class Ui_MainWindow(object):
         self.btn_real_time_data.setFont(font)
         self.btn_real_time_data.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_real_time_data.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.btn_real_time_data.setStyleSheet("background-color: rgb(33, 33, 33);\n"
-"color: rgb(255, 255, 255);\n"
-"border: 1px solid white;\n"
-"border-radius: 10px;")
+        self.btn_real_time_data.setStyleSheet("QPushButton{\n"
+"    background-color: rgb(16, 16, 16);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border: 1px solid white;\n"
+"    border-radius: 10px;\n"
+"    padding: 5px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    background-color: rgb(40, 40, 40);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border: 1px solid white;\n"
+"    border-radius: 10px;\n"
+"    padding: 5px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    background-color: rgb(20, 20, 20);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border: 1px solid white;\n"
+"    border-radius: 10px;\n"
+"    padding: 5px;;\n"
+"}")
+        self.btn_real_time_data.setFlat(False)
         self.btn_real_time_data.setObjectName("btn_real_time_data")
         self.gridLayout.addWidget(self.btn_real_time_data, 3, 2, 1, 1)
         self.btn_read_logger_data = QtWidgets.QPushButton(self.centralwidget)
@@ -572,10 +595,29 @@ class Ui_MainWindow(object):
         self.btn_read_logger_data.setFont(font)
         self.btn_read_logger_data.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_read_logger_data.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.btn_read_logger_data.setStyleSheet("background-color: rgb(33, 33, 33);\n"
-"color: rgb(255, 255, 255);\n"
-"border: 1px solid white;\n"
-"border-radius: 10px;")
+        self.btn_read_logger_data.setStyleSheet("QPushButton{\n"
+"    background-color: rgb(16, 16, 16);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border: 1px solid white;\n"
+"    border-radius: 10px;\n"
+"    padding: 5px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    background-color: rgb(40, 40, 40);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border: 1px solid white;\n"
+"    border-radius: 10px;\n"
+"    padding: 5px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    background-color: rgb(20, 20, 20);\n"
+"    color: rgb(255, 255, 255);\n"
+"    border: 1px solid white;\n"
+"    border-radius: 10px;\n"
+"    padding: 5px;;\n"
+"}")
         self.btn_read_logger_data.setObjectName("btn_read_logger_data")
         self.gridLayout.addWidget(self.btn_read_logger_data, 3, 3, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -668,7 +710,7 @@ class Ui_MainWindow(object):
         self.lineEdit_logging_interval.setStatusTip(_translate("MainWindow", "Value should be integer and ranging from 1 to 1440"))
         self.lineEdit_logging_interval.setPlaceholderText(_translate("MainWindow", "1 to 1440"))
         self.label_2.setText(_translate("MainWindow", "Minute (s)"))
-        self.label_title_battery_level.setText(_translate("MainWindow", "Battery Voltage"))
+        self.label_title_battery_level.setText(_translate("MainWindow", "Main Battery Voltage"))
         self.label_5.setText(_translate("MainWindow", ":"))
         self.label_7.setText(_translate("MainWindow", ":"))
         self.label_title_device_id_2.setText(_translate("MainWindow", "Erase or Reset"))
@@ -737,7 +779,7 @@ class Ui_MainWindow(object):
         self.reconnect_button.setWhatsThis(_translate("MainWindow", "sdfj"))
         self.reconnect_button.setText(_translate("MainWindow", "Reconnect"))
         self.label_18.setText(_translate("MainWindow", " Connectivity Status:"))
-        self.btn_real_time_data.setStatusTip(_translate("MainWindow", "Start real time data streaming window"))
+        self.btn_real_time_data.setStatusTip(_translate("MainWindow", "Start real-time data streaming window"))
         self.btn_real_time_data.setText(_translate("MainWindow", "Real-time Data"))
         self.btn_read_logger_data.setStatusTip(_translate("MainWindow", "Read data saved in the logger"))
         self.btn_read_logger_data.setText(_translate("MainWindow", "Read Logged Data"))

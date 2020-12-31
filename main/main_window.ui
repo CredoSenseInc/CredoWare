@@ -581,7 +581,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Battery Voltage</string>
+           <string>Main Battery Voltage</string>
           </property>
          </widget>
         </item>
@@ -1351,6 +1351,11 @@
     </item>
     <item row="1" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_18">
+      <property name="font">
+       <font>
+        <family>Arial</family>
+       </font>
+      </property>
       <property name="text">
        <string> Connectivity Status:</string>
       </property>
@@ -1376,16 +1381,38 @@
        <enum>Qt::StrongFocus</enum>
       </property>
       <property name="statusTip">
-       <string>Start real time data streaming window</string>
+       <string>Start real-time data streaming window</string>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(33, 33, 33);
-color: rgb(255, 255, 255);
-border: 1px solid white;
-border-radius: 10px;</string>
+       <string notr="true">QPushButton{
+	background-color: rgb(16, 16, 16);
+	color: rgb(255, 255, 255);
+	border: 1px solid white;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+QPushButton:hover{
+	background-color: rgb(40, 40, 40);
+	color: rgb(255, 255, 255);
+	border: 1px solid white;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+QPushButton:pressed{
+	background-color: rgb(20, 20, 20);
+	color: rgb(255, 255, 255);
+	border: 1px solid white;
+	border-radius: 10px;
+	padding: 5px;;
+}</string>
       </property>
       <property name="text">
        <string>Real-time Data</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
       </property>
      </widget>
     </item>
@@ -1412,10 +1439,29 @@ border-radius: 10px;</string>
        <string>Read data saved in the logger</string>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(33, 33, 33);
-color: rgb(255, 255, 255);
-border: 1px solid white;
-border-radius: 10px;</string>
+       <string notr="true">QPushButton{
+	background-color: rgb(16, 16, 16);
+	color: rgb(255, 255, 255);
+	border: 1px solid white;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+QPushButton:hover{
+	background-color: rgb(40, 40, 40);
+	color: rgb(255, 255, 255);
+	border: 1px solid white;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+QPushButton:pressed{
+	background-color: rgb(20, 20, 20);
+	color: rgb(255, 255, 255);
+	border: 1px solid white;
+	border-radius: 10px;
+	padding: 5px;;
+}</string>
       </property>
       <property name="text">
        <string>Read Logged Data</string>

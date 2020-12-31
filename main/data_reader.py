@@ -1,5 +1,7 @@
 import time
 import serial.tools.list_ports
+from PyQt5.QtWidgets import QApplication
+
 from MySingleton import SingletonMeta
 
 
@@ -13,7 +15,7 @@ class DataReader(metaclass=SingletonMeta):
         self.ports = serial.tools.list_ports.comports(include_links=True)
         device = None
         for each in self.ports:
-            if each.vid == 1027:
+            if each.vid == 1027 or each.manufacturer == 'FTDI' or each.pid == 24577:
                 device = each
                 break
         return device
@@ -65,7 +67,10 @@ class DataReader(metaclass=SingletonMeta):
         if task_type == TaskTypes.SERIAL_READ_LOGGER_DATA:
             return data_lst
         if not task_type == TaskTypes.SERIAL_ERASE:
-            return data_lst[0]
+            try:
+                return data_lst[0]
+            except:
+                return None
         else:
             return None
 

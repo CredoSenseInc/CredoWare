@@ -1,8 +1,10 @@
 import math
 import os
 import datetime
+import time
 
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5 import  QtCore
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFileDialog
 
 import utils
@@ -33,14 +35,20 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         self.write_yes = False
         self.savingText.hide()
         self.savingText.setStyleSheet('color:red;')
+        self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
 
-    def initialize_and_show(self):
         self.temp_lcd.display(0)
         self.hum_lcd.display(0)
         self.pre_lcd.display(0)
+
+    def initialize_and_show(self):
         self.show()
 
     def start_pressed(self):
+        self.temp_lcd.display(0)
+        self.hum_lcd.display(0)
+        self.pre_lcd.display(0)
+
         msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText("Do you want to save incoming real-time data?")
@@ -62,7 +70,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
     def stop_pressed(self):
         TaskConsumer().clear_task_queue()
-        self.temp_lcd.display(0)
+
         self.stop_queue_real_time_thread()
         self.btn_reading_start.setDisabled(False)
         self.btn_reading_stop.setDisabled(True)
@@ -80,11 +88,10 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         self.reading_timer.timeout.connect(self.get_real_time_reading)
 
     def stop_queue_real_time_thread(self):
-
         self.reading_timer.stop()
 
     def get_real_time_reading(self):
-
+        self.start = time.time()
         TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
 
     def clear_temporary(self):
@@ -94,7 +101,8 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         self.pressure_data.clear()
 
     def task_done_callback(self, response):
-
+        self.stop = time.time()
+        print(f'time taken: {self.stop - self.start}')
         if 'exception' in response:
             return
         # print(response);
@@ -158,6 +166,9 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
+            self.temp_lcd.display(0)
+            self.hum_lcd.display(0)
+            self.pre_lcd.display(0)
             if self.write_yes:
                 self.choose_directory()
                 self.write_csv()

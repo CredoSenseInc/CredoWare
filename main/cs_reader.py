@@ -21,9 +21,11 @@ from task_consumer import TaskConsumer, TaskTypes, Task
 from utils import CONSCIOUS_BATTERY_LEVEL
 
 # import sentry_sdk
-# import rollbar
+import rollbar
 
-# rollbar.init('480a6e722bdc45bca0ebe39e4d2a5e4b')
+rollbar.init('e3a546db962f43968a3956e2e201e320')
+
+
 # sentry_sdk.init("https://e6fdc5ed07fb4248aaf35c1deca4ec8b@sentry.io/2500238")
 
 logging.basicConfig(level=logging.INFO)
@@ -51,6 +53,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
 
         super(MainWindow, self).__init__(*args, **kwargs)
+        self.alert_msg_box = QMessageBox(self)
         self.setupUi(self)
 
         self.reading_timer = QTimer()
@@ -58,10 +61,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.device_selecton = Reset()
         self.real_time_window = MyRealTimeWindow()
         self.about_window = MyAboutWindow()
-        self.port_select_window = MyPortSelectWindow()
-        self.port_select_window.initialize_and_show()
 
-        self.port_select_window.button_select_port.clicked.connect(self.initialize_main_window)
+        """code segment for: port select window"""
+        # self.port_select_window = MyPortSelectWindow()
+        # self.port_select_window.initialize_and_show()
+        # self.port_select_window.button_select_port.clicked.connect(self.initialize_main_window)
 
         self.actionTurn_ON.triggered.connect(lambda: self.led_on())
         self.actionTrun_OFF.triggered.connect(lambda: self.led_off())
@@ -89,16 +93,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dateTimeEdit_logging_start.hide()
         self.dateTimeEdit_logging_stop.hide()
 
-        # self.show()
+        self.show()
 
         self.queue_timer = QTimer()
         self.miscellaneous_timer = QTimer()
         self.device_connectivity_status_timer = QTimer()
 
-    def initialize_main_window(self):
-        self.port_select_window.hide()
-        self.show()
         self.init_timers()
+
+    """code segment for: port select window"""
+    # def initialize_main_window(self):
+    #     self.port_select_window.hide()
+    #     self.show()
+    #     self.init_timers()
 
     def init_timers(self):
         self.init_queue_task_consumer_thread()
@@ -168,8 +175,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.device_selecton.initialize_and_show()
 
     def start_reading_realtime_data(self):
+        # self.waiting_window()
+        if not self.real_time_window.isActiveWindow():
+            self.real_time_window.activateWindow()
+
         if TaskConsumer().q != []:
-            self.show_alert_dialog("Logger is busy")
+            # self.show_alert_dialog("Logger is busy")
+            pass
         else:
             if self.is_reading_mode():
                 self.waiting_window_end()
@@ -453,9 +465,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif response['task_type'] == TaskTypes.SERIAL_TIME_BATTERY:
             time, date, battery = response['data'].strip().split()
             self.label_battery_level.setText(battery + " V")
+            self.label_battery_level.show()
             if float(battery.strip()) <= CONSCIOUS_BATTERY_LEVEL:
                 if float(battery.strip()) <= 1.0:
                     self.label_battery_level_low_signal.setText("No battery")
+                    self.label_battery_level.hide()
                 else:
                     self.label_battery_level_low_signal.setText("Battery low, please replace (CR2450)")
                 self.label_battery_level_low_signal.setStyleSheet("color: red; ")
@@ -481,15 +495,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         "background-color: rgb(34, 232, 28);\n""color: rgb(0, 0, 0);")
 
             except ValueError:
-                self.show_alert_dialog("Logger timekeeping failed\nPlease change logger's clock battery (CR1025)\nand "
-                                       "press Sync Time")
+                self.show_alert_dialog("Logger timekeeping failed.\nPlease change/insert battery before syncing time")
 
         elif response['task_type'] == TaskTypes.SERIAL_RTC_ERROR:
             self.label_device_id.setText("Connected")
             self.reconnect_button.setText("Reconnect")
             self.reconnect_button.show()
             if response['data'] == 'yes':
-                self.show_alert_dialog("Clock battery level critical.\nPlease change logger's clock battery (CR1025)")
+                self.show_alert_dialog("Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
 
         elif response['task_type'] == TaskTypes.SERIAL_DEV_NAME:
             self.lineEdit_device_name.setText(response['data'])
@@ -502,13 +515,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # self.msg_box_read_log_data.close()
             # self.msg_box_read_log_data.close()
 
-            self.p.pbar.setValue(80)
+            self.p.progressBar.setValue(80)
             self.p.setWindowTitle('Generating graph')
             logger_plot_window = LoggerPlotWindow(self)
             try:
                 if response['data']:
                     logger_plot_window.initialize_and_show(1, response['data'])
-                    self.p.pbar.setValue(100)
+                    self.p.progressBar.setValue(100)
                     self.p.close()
                 else:
                     self.p.close()
@@ -655,6 +668,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.is_reading_mode():
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOGGER_DATA, self.task_done_callback))
                 self.p = ProgBar()
+                # self.p.pbar.setStyleSheet('margin: 20px;')
                 self.p.show()
 
     # self.msg_box_read_log_data = CustomDialog(self)
@@ -699,12 +713,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def show_alert_dialog(self, msg):
         self.waiting_window_end()
-        msg_box = QMessageBox(self)
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle("Message")
-        msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.exec_()
+        self.alert_msg_box.setIcon(QMessageBox.Information)
+        self.alert_msg_box.setText(msg)
+        self.alert_msg_box.setWindowTitle("Message")
+        self.alert_msg_box.setStandardButtons(QMessageBox.Ok)
+        self.alert_msg_box.show()
+        self.alert_msg_box.exec_()
 
     def show_error_dialog(self, msg):
         self.waiting_window_end()
@@ -733,7 +747,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QApplication.setOverrideCursor(Qt.WaitCursor)
         except:
             pass
-        # do lengthy process
 
     def waiting_window_end(self):
         try:
@@ -743,35 +756,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 if __name__ == '__main__':
-    # try:
-    app = QApplication([])
-
-    screen_resolution = app.desktop().screenGeometry()
-    width, height = screen_resolution.width(), screen_resolution.height()
-    w = 655
-    h = 885
-    app.setApplicationName("CredoWare")
     try:
-        app.setWindowIcon(QtGui.QIcon("logo.png"))
-    except:
-        pass
-    window = MainWindow()
+        app = QApplication([])
 
-    if (height < 1000):
-        if width<1000:
-            window.resize(width / 2, height - 150)
-            window.move(int(width / 2 - width / 2 / 2), int(height / 2 - (height - 150) / 2)-(width/100))
+        screen_resolution = app.desktop().screenGeometry()
+        width, height = screen_resolution.width(), screen_resolution.height()
+        w = 655
+        h = 885
+        app.setApplicationName("CredoWare")
+        try:
+            app.setWindowIcon(QtGui.QIcon("logo.png"))
+        except:
+            pass
+        window = MainWindow()
+        if (height < 1000):
+            if width<1000:
+                window.resize(width / 2, height - 150)
+                window.move(int(width / 2 - width / 2 / 2), int(height / 2 - (height - 150) / 2)-(width/100))
+            else:
+                window.resize(600, height - 150)
+                window.move(int(width / 2 - 600 / 2), int(height / 2 - (height - 150) / 2) - (width / 100))
         else:
-            window.resize(600, height - 150)
-            window.move(int(width / 2 - 600 / 2), int(height / 2 - (height - 150) / 2) - (width / 100))
-    else:
-        window.resize(w, h)
-        window.move(int(width / 2 - w / 2), int((height / 2 - h / 2)-(width/100)))
-    app.exec_()
+            window.resize(w, h)
+            window.move(int(width / 2 - w / 2), int((height / 2 - h / 2)-(width/100)))
+        app.exec_()
 
-    # except:
-        # rollbar.report_exc_info()
-        # print('error')
-        # pass
-    # finally:
-    #     pass
+    except:
+        rollbar.report_exc_info()
+    finally:
+        pass
