@@ -90,8 +90,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.comboBox_logging_stop.currentIndexChanged.connect(self.logging_stop_selection_changed)
         self.dateTimeEdit_logging_start.setDateTime(QDateTime.currentDateTime())
         self.dateTimeEdit_logging_stop.setDateTime(QDateTime.currentDateTime())
+
         self.dateTimeEdit_logging_start.hide()
         self.dateTimeEdit_logging_stop.hide()
+        self.label_logger_interval_show.setText("")
 
         self.show()
 
@@ -167,6 +169,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_reset_factory_settings.setDisabled(True)
 
     def reset_device(self):
+        if not self.device_selecton.isActiveWindow():
+            self.device_selecton.raise_()
+            self.device_selecton.activateWindow()
+
         if TaskConsumer().q != []:
             self.show_alert_dialog("Logger is busy")
         else:
@@ -175,12 +181,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.device_selecton.initialize_and_show()
 
     def start_reading_realtime_data(self):
-        # self.waiting_window()
         if not self.real_time_window.isActiveWindow():
+            self.real_time_window.raise_()
             self.real_time_window.activateWindow()
 
         if TaskConsumer().q != []:
-            # self.show_alert_dialog("Logger is busy")
             pass
         else:
             if self.is_reading_mode():
@@ -251,6 +256,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.label_battery_level_low_signal.setText("")
         self.label_device_time.setText("")
         self.lineEdit_device_name.setText("")
+        self.label_logger_interval_show.setText("")
+
 
     def rename_device(self):
         if self.is_reading_mode():
@@ -452,7 +459,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
             elif data == 'found':
-
+                self.waiting_window()
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_ID, self.task_done_callback))
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_TIME_BATTERY, self.task_done_callback))
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_NAME, self.task_done_callback))
@@ -460,6 +467,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_DAYLIGHT, self.task_done_callback))
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_ALARM, self.task_done_callback))
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RTC_ERROR, self.task_done_callback))
 
         elif response['task_type'] == TaskTypes.SERIAL_TIME_BATTERY:
@@ -501,6 +509,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.label_device_id.setText("Connected")
             self.reconnect_button.setText("Reconnect")
             self.reconnect_button.show()
+            self.connect_buttons()
+            self.waiting_window_end()
             if response['data'] == 'yes':
                 self.show_alert_dialog("Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
 
@@ -531,9 +541,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     msg_box.setWindowTitle("Message")
                     msg_box.setStandardButtons(QMessageBox.Ok)
                     msg_box.exec_()
-            except:
+            except Exception as er:
                 self.show_error_dialog("Error! Data corrupted\nPlease erase all logged data")
                 self.p.close()
+                print(er)
 
         elif response['task_type'] == TaskTypes.SERIAL_RENAME_DEV_NAME:
             self.show_alert_dialog("Device rename successful!")
@@ -582,6 +593,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.interval, start_type, start_time, start_date, stop_type, stop_time, stop_date = response[
                 'data'].split()
             self.lineEdit_logging_interval.setText(self.interval)
+            self.label_logger_interval_show.setText("Logging interval is currently set to " + self.interval + " minute(s)")
             self.update_logging_start_stop(start_type, start_time, start_date, stop_type, stop_time, stop_date)
 
         elif response['task_type'] == TaskTypes.SERIAL_WRITE_DAYLIGHT:
@@ -595,8 +607,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.checkBox_dst.setChecked(True)
             else:
                 self.checkBox_dst.setChecked(False)
-        elif response['task_type'] == TaskTypes.SERIAL_REAL_TIME:
-            self.realtime = response['data']
+        # elif response['task_type'] == TaskTypes.SERIAL_REAL_TIME:
+        #     self.realtime = response['data']
 
         elif response['task_type'] == TaskTypes.SERIAL_DEV_ID:
 
@@ -618,7 +630,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.lineEdit_high_pressure.setDisabled(True)
                 self.lineEdit_low_pressure.setDisabled(True)
 
-            self.connect_buttons()
+
+
+        # elif response['task_type'] == TaskTypes.SERIAL_REAL_TIME:
+        #     print(response)
+
 
     def update_logging_start_stop(self, start_type, start_time, start_date, stop_type, stop_time, stop_date):
 
@@ -702,6 +718,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lineEdit_device_name.setText("")
         utils.CURRENT_DEVICE_TIME_RESPONSE = None
         self.lineEdit_logging_interval.setText("")
+        self.label_logger_interval_show.setText("")
         self.lineEdit_high_temp.setText("")
         self.lineEdit_low_temp.setText("")
         self.lineEdit_high_hum.setText("")
@@ -712,7 +729,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_sync_device_system_time.setStyleSheet("")
 
     def show_alert_dialog(self, msg):
-        self.waiting_window_end()
+        # self.waiting_window_end()
         self.alert_msg_box.setIcon(QMessageBox.Information)
         self.alert_msg_box.setText(msg)
         self.alert_msg_box.setWindowTitle("Message")
@@ -738,6 +755,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.reading_timer.stop()
             TaskConsumer().clear_task_queue()
             DataReader().close()
+
+            # self.real_time_window.close()
+            self.about_window.close()
+            self.device_selecton.close()
+
             event.accept()
         else:
             event.ignore()
@@ -761,12 +783,13 @@ if __name__ == '__main__':
 
         screen_resolution = app.desktop().screenGeometry()
         width, height = screen_resolution.width(), screen_resolution.height()
-        w = 655
-        h = 885
+        w = 530
+        h = 740
         app.setApplicationName("CredoWare")
         try:
             app.setWindowIcon(QtGui.QIcon("logo.png"))
-        except:
+        except Exception as er:
+            print(er)
             pass
         window = MainWindow()
         if (height < 1000):
@@ -781,7 +804,8 @@ if __name__ == '__main__':
             window.move(int(width / 2 - w / 2), int((height / 2 - h / 2)-(width/100)))
         app.exec_()
 
-    except:
+    except Exception as er:
+        print(er)
         rollbar.report_exc_info()
     finally:
         pass

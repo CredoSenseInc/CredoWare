@@ -104,45 +104,50 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         self.stop = time.time()
         print(f'time taken: {self.stop - self.start}')
         if 'exception' in response:
+            print('error')
             return
-        # print(response);
+        print(response)
         MyRealTimeWindow.temp = response['data']
         temp = MyRealTimeWindow.temp
         # print(temp)
         x = DataReader()
         self.chk_dev_id = x.read_data("read_dev_ID")
 
-        if self.chk_dev_id == 'CSL-T0.5':
-            tmp = self.apply_rules_to_values(float(temp))
-            # temp = ((temp*(9/5))+32)  # convert to fahrenheit
-            # print(tmp)
-            self.temp_lcd.display(tmp)
-            self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
-            self.temperature_data.append(tmp)
-
-        if self.chk_dev_id == 'CSL-H2 T0.2':
-            # msg_box = QMessageBox(self)
-            # msg_box.setIcon(QMessageBox.Information)
-            # msg_box.setText("This model currently does not support real time data steaming mode")
-            # self.stop_queue_real_time_thread()
-            # TaskConsumer().clear_task_queue()
-            # self.hide()
-            # msg_box.setWindowTitle("Message")
-            # msg_box.setStandardButtons(QMessageBox.Ok)
-            # msg_box.exec_()
-
-            tmp, hum = temp.split()
-            # print(tmp)
-            # print(hum)
-            if float(hum) == 100.00:
-                print('read again')
-                self.get_real_time_reading()
-            else:
-                self.temp_lcd.display(float(tmp))
-                self.hum_lcd.display(float(hum))
+        try:
+            if self.chk_dev_id == 'CSL-T0.5':
+                tmp = self.apply_rules_to_values(float(temp))
+                # temp = ((temp*(9/5))+32)  # convert to fahrenheit
+                # print(tmp)
+                self.temp_lcd.display(tmp)
                 self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
                 self.temperature_data.append(tmp)
-                self.humidity_data.append(hum)
+
+            if self.chk_dev_id == 'CSL-H2 T0.2':
+                # msg_box = QMessageBox(self)
+                # msg_box.setIcon(QMessageBox.Information)
+                # msg_box.setText("This model currently does not support real time data steaming mode")
+                # self.stop_queue_real_time_thread()
+                # TaskConsumer().clear_task_queue()
+                # self.hide()
+                # msg_box.setWindowTitle("Message")
+                # msg_box.setStandardButtons(QMessageBox.Ok)
+                # msg_box.exec_()
+
+                tmp, hum = temp.split()
+                # print(tmp)
+                # print(hum)
+                if float(hum) == 100.00:
+                    print('read again')
+                    self.get_real_time_reading()
+                else:
+                    self.temp_lcd.display(float(tmp))
+                    self.hum_lcd.display(float(hum))
+                    self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
+                    self.temperature_data.append(tmp)
+                    self.humidity_data.append(hum)
+        except Exception as er:
+            print(er)
+            pass
 
     def apply_rules_to_values(self, vals):
         c1, c2, c3, r = utils.READ_CONST_RESPONSE.split(' ')
@@ -182,7 +187,6 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
             self.clear_temporary()
             event.accept()
         else:
-
             event.ignore()
 
     def show_msg(self, msg):

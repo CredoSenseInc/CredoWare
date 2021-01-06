@@ -49,16 +49,19 @@ class DataReader(metaclass=SingletonMeta):
         from task_consumer import TaskTypes
         # print(task_type)
         self.ser.write(task_type.encode('ascii'))
-        # print('aise toh')
+
         data_lst = []
         while True:
             if not self.is_port_open():
                 break
             try:
                 data = self.ser.readline().decode('utf-8').rstrip('\r\n')
+                print(data)
             except:
                 pass
             if data == "ready":
+                self.ser.reset_input_buffer()
+                self.ser.reset_output_buffer()
                 break
             else:
                 if not task_type == TaskTypes.SERIAL_ERASE:
@@ -79,12 +82,16 @@ class DataReader(metaclass=SingletonMeta):
         while True:
             data = self.ser.readline().decode('utf-8').rstrip('\r\n')
             if data == "ready":
+                self.ser.reset_input_buffer()
+                self.ser.reset_output_buffer()
                 break
 
         self.ser.write(new_data.encode('ascii'))
         while True:
             data = self.ser.readline().decode('utf-8').rstrip('\r\n')
             if data == "ready":
+                self.ser.reset_input_buffer()
+                self.ser.reset_output_buffer()
                 break
 
         return 'OK'
@@ -94,6 +101,8 @@ class DataReader(metaclass=SingletonMeta):
         while True:
             data = self.ser.readline().decode('utf-8').rstrip('\r\n')
             if data == "ready":
+                self.ser.reset_input_buffer()
+                self.ser.reset_output_buffer()
                 break
 
         self.ser.write(send_data.encode('ascii'))
@@ -104,6 +113,8 @@ class DataReader(metaclass=SingletonMeta):
             except:
                 pass
             if data == "ready":
+                self.ser.reset_input_buffer()
+                self.ser.reset_output_buffer()
                 break
             else:
                 data_lst.append(data)

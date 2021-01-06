@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>518</width>
-    <height>725</height>
+    <width>530</width>
+    <height>740</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -89,12 +89,212 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>500</width>
-         <height>596</height>
+         <width>512</width>
+         <height>611</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="37" column="0">
+        <item row="4" column="4">
+         <spacer name="horizontalSpacer">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="16" column="1">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0">
+         <widget class="QLabel" name="label_d_id_6">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Logger's Time</string>
+          </property>
+         </widget>
+        </item>
+        <item row="18" column="0">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="38" column="1">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="36" column="3">
+         <widget class="QLabel" name="label_low_value">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Low</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2" colspan="3">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_device_type">
+            <property name="font">
+             <font>
+              <family>Arial</family>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item row="14" column="0" colspan="5">
+         <widget class="QCheckBox" name="checkBox_dst">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Enable DST</string>
+          </property>
+          <property name="statusTip">
+           <string>Check to Enable daylight savings time</string>
+          </property>
+          <property name="text">
+           <string>Daylight Saving (check to enable daylight savings time)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="26" column="4" rowspan="2">
+         <widget class="QPushButton" name="btn_set_start_stop_option">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Set start/stop</string>
+          </property>
+          <property name="statusTip">
+           <string>Program logging start and stop options</string>
+          </property>
+          <property name="text">
+           <string>Set Start/Stop Option</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QLabel" name="label_8">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="2" colspan="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_system_time">
+            <property name="font">
+             <font>
+              <family>Arial</family>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item row="40" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="38" column="0">
          <widget class="QLabel" name="label_hum">
           <property name="font">
            <font>
@@ -147,6 +347,13 @@
           </item>
          </layout>
         </item>
+        <item row="39" column="1">
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>:</string>
+          </property>
+         </widget>
+        </item>
         <item row="12" column="0" colspan="5">
          <widget class="Line" name="line">
           <property name="font">
@@ -162,7 +369,7 @@
           </property>
          </widget>
         </item>
-        <item row="36" column="0">
+        <item row="37" column="0">
          <widget class="QLabel" name="label_temp">
           <property name="font">
            <font>
@@ -186,14 +393,7 @@
           </property>
          </widget>
         </item>
-        <item row="38" column="1">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="29" column="0">
+        <item row="30" column="0">
          <widget class="QLabel" name="label_4">
           <property name="font">
            <font>
@@ -205,20 +405,7 @@
           </property>
          </widget>
         </item>
-        <item row="28" column="0">
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="37" column="4">
+        <item row="38" column="4">
          <widget class="QPushButton" name="btn_set_alarm">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -242,13 +429,6 @@
           </property>
           <property name="text">
            <string>Set Alarm Values</string>
-          </property>
-         </widget>
-        </item>
-        <item row="23" column="1">
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>:</string>
           </property>
          </widget>
         </item>
@@ -283,19 +463,49 @@
           </item>
          </widget>
         </item>
-        <item row="19" column="0">
-         <widget class="QLabel" name="label_3">
+        <item row="28" column="0">
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="23" column="1">
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="0" colspan="5">
+         <widget class="Line" name="line_3">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
-          <property name="text">
-           <string>Logging Options</string>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="34" column="0" colspan="5">
+        <item row="17" column="1">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="35" column="0" colspan="5">
          <widget class="QCheckBox" name="checkBox_temp_alarm_status">
           <property name="font">
            <font>
@@ -310,14 +520,7 @@
           </property>
          </widget>
         </item>
-        <item row="17" column="1">
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="37" column="2">
+        <item row="38" column="2">
          <widget class="QLineEdit" name="lineEdit_high_hum">
           <property name="font">
            <font>
@@ -341,42 +544,15 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2" colspan="3">
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <item>
-           <widget class="QLabel" name="lbl_device_id">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="31" column="0" colspan="5">
-         <widget class="Line" name="line_3">
+        <item row="19" column="0">
+         <widget class="QLabel" name="label_3">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <property name="text">
+           <string>Logging Options</string>
           </property>
          </widget>
         </item>
@@ -404,75 +580,72 @@
           </property>
          </widget>
         </item>
-        <item row="18" column="0">
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+        <item row="2" column="2" colspan="3">
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="lbl_device_id">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
-        <item row="37" column="1">
-         <widget class="QLabel" name="label_14">
-          <property name="text">
-           <string>:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="1">
-         <widget class="QLabel" name="label_10">
-          <property name="text">
-           <string>:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="35" column="3">
-         <widget class="QLabel" name="label_low_value">
+        <item row="8" column="0">
+         <widget class="QLabel" name="label_title_battery_level">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
           <property name="text">
-           <string>Low</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <string>Main Battery Voltage</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="4">
-         <spacer name="horizontalSpacer">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="16" column="0">
-         <widget class="QLabel" name="label_d_id_6">
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_title_device_id_2">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
           <property name="text">
-           <string>Logger's Time</string>
+           <string>Erase or Reset</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="2" colspan="2">
+         <widget class="QLineEdit" name="lineEdit_device_name">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Name</string>
+          </property>
+          <property name="statusTip">
+           <string>Name of the connected logger</string>
+          </property>
+          <property name="placeholderText">
+           <string>CredoSense</string>
           </property>
          </widget>
         </item>
@@ -544,47 +717,6 @@
           </item>
          </layout>
         </item>
-        <item row="6" column="2" colspan="3">
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QLabel" name="label_device_type">
-            <property name="font">
-             <font>
-              <family>Arial</family>
-             </font>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_title_battery_level">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>Main Battery Voltage</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="1">
          <widget class="QLabel" name="label_5">
           <property name="font">
@@ -609,64 +741,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_title_device_id_2">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>Erase or Reset</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="2" colspan="2">
-         <widget class="QLineEdit" name="lineEdit_device_name">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>Name</string>
-          </property>
-          <property name="statusTip">
-           <string>Name of the connected logger</string>
-          </property>
-          <property name="placeholderText">
-           <string>CredoSense</string>
-          </property>
-         </widget>
-        </item>
-        <item row="37" column="3">
-         <widget class="QLineEdit" name="lineEdit_low_hum">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>Min 0</string>
-          </property>
-          <property name="statusTip">
-           <string>Minimum allowed value: 0</string>
-          </property>
-          <property name="inputMethodHints">
-           <set>Qt::ImhPreferNumbers</set>
-          </property>
-          <property name="placeholderText">
-           <string>0</string>
-          </property>
-         </widget>
-        </item>
-        <item row="38" column="3">
+        <item row="39" column="3">
          <widget class="QLineEdit" name="lineEdit_low_pressure">
           <property name="font">
            <font>
@@ -687,18 +762,6 @@
           </property>
           <property name="placeholderText">
            <string>600</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_title_device_type">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>Device Type</string>
           </property>
          </widget>
         </item>
@@ -723,27 +786,39 @@
           </property>
          </widget>
         </item>
-        <item row="38" column="0">
-         <widget class="QLabel" name="label_pressure">
+        <item row="38" column="3">
+         <widget class="QLineEdit" name="lineEdit_low_hum">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
-          <property name="text">
-           <string>Pressure (mbar)</string>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Min 0</string>
+          </property>
+          <property name="statusTip">
+           <string>Minimum allowed value: 0</string>
+          </property>
+          <property name="inputMethodHints">
+           <set>Qt::ImhPreferNumbers</set>
+          </property>
+          <property name="placeholderText">
+           <string>0</string>
           </property>
          </widget>
         </item>
-        <item row="17" column="0">
-         <widget class="QLabel" name="label_d_id_7">
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_title_device_type">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
           <property name="text">
-           <string>Computer's Time</string>
+           <string>Device Type</string>
           </property>
          </widget>
         </item>
@@ -776,106 +851,70 @@
           </item>
          </layout>
         </item>
-        <item row="17" column="2" colspan="2">
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <item>
-           <widget class="QLabel" name="label_system_time">
-            <property name="font">
-             <font>
-              <family>Arial</family>
-             </font>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
         <item row="39" column="0">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="26" column="4" rowspan="2">
-         <widget class="QPushButton" name="btn_set_start_stop_option">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="QLabel" name="label_pressure">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
+          <property name="text">
+           <string>Pressure (mbar)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="0">
+         <widget class="QLabel" name="label_d_id_7">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Computer's Time</string>
+          </property>
+         </widget>
+        </item>
+        <item row="37" column="2">
+         <widget class="QLineEdit" name="lineEdit_high_temp">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>Set start/stop</string>
+           <string>Max 85</string>
           </property>
           <property name="statusTip">
-           <string>Program logging start and stop options</string>
+           <string>Maximum allowed value: 85</string>
           </property>
-          <property name="text">
-           <string>Set Start/Stop Option</string>
+          <property name="inputMethodHints">
+           <set>Qt::ImhPreferNumbers</set>
+          </property>
+          <property name="placeholderText">
+           <string>85</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
-         <widget class="QLabel" name="label_8">
+        <item row="36" column="2">
+         <widget class="QLabel" name="label_high_value">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
           <property name="text">
-           <string>:</string>
+           <string>High</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
-        <item row="14" column="0" colspan="5">
-         <widget class="QCheckBox" name="checkBox_dst">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>Enable DST</string>
-          </property>
-          <property name="statusTip">
-           <string>Check to Enable daylight savings time</string>
-          </property>
-          <property name="text">
-           <string>Daylight Saving (check to enable daylight savings time)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="38" column="2">
+        <item row="39" column="2">
          <widget class="QLineEdit" name="lineEdit_high_pressure">
           <property name="font">
            <font>
@@ -899,6 +938,42 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="2">
+         <widget class="QPushButton" name="btn_erase_data">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Erase</string>
+          </property>
+          <property name="statusTip">
+           <string>Erase all logged data</string>
+          </property>
+          <property name="text">
+           <string>Erase Data</string>
+          </property>
+         </widget>
+        </item>
+        <item row="20" column="0" colspan="5">
+         <widget class="Line" name="line_2">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0" colspan="5">
          <widget class="QLabel" name="label_17">
           <property name="font">
@@ -908,30 +983,6 @@
           </property>
           <property name="text">
            <string>Device Information</string>
-          </property>
-         </widget>
-        </item>
-        <item row="36" column="2">
-         <widget class="QLineEdit" name="lineEdit_high_temp">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>Max 85</string>
-          </property>
-          <property name="statusTip">
-           <string>Maximum allowed value: 85</string>
-          </property>
-          <property name="inputMethodHints">
-           <set>Qt::ImhPreferNumbers</set>
-          </property>
-          <property name="placeholderText">
-           <string>85</string>
           </property>
          </widget>
         </item>
@@ -991,39 +1042,27 @@
           </item>
          </layout>
         </item>
-        <item row="20" column="0" colspan="5">
-         <widget class="Line" name="line_2">
+        <item row="37" column="3">
+         <widget class="QLineEdit" name="lineEdit_low_temp">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2">
-         <widget class="QPushButton" name="btn_erase_data">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>Erase</string>
+           <string>Min -45</string>
           </property>
           <property name="statusTip">
-           <string>Erase all logged data</string>
+           <string>Minimum allowed value: -45</string>
           </property>
-          <property name="text">
-           <string>Erase Data</string>
+          <property name="inputMethodHints">
+           <set>Qt::ImhPreferNumbers</set>
+          </property>
+          <property name="placeholderText">
+           <string>-45</string>
           </property>
          </widget>
         </item>
@@ -1048,22 +1087,46 @@
           </property>
          </widget>
         </item>
-        <item row="35" column="2">
-         <widget class="QLabel" name="label_high_value">
+        <item row="6" column="1">
+         <widget class="QLabel" name="label_6">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
           <property name="text">
-           <string>High</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <string>:</string>
           </property>
          </widget>
         </item>
-        <item row="36" column="1">
+        <item row="9" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Device Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_title_device_information_2">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="text">
+           <string>Device Model</string>
+          </property>
+         </widget>
+        </item>
+        <item row="37" column="1">
          <widget class="QLabel" name="label_13">
           <property name="text">
            <string>:</string>
@@ -1083,66 +1146,24 @@
           </property>
          </spacer>
         </item>
-        <item row="36" column="3">
-         <widget class="QLineEdit" name="lineEdit_low_temp">
+        <item row="4" column="3">
+         <widget class="QPushButton" name="btn_reset_factory_settings">
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="toolTip">
-           <string>Min -45</string>
+           <string>Reset</string>
           </property>
           <property name="statusTip">
-           <string>Minimum allowed value: -45</string>
-          </property>
-          <property name="inputMethodHints">
-           <set>Qt::ImhPreferNumbers</set>
-          </property>
-          <property name="placeholderText">
-           <string>-45</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
+           <string>Reset the logger to default settings</string>
           </property>
           <property name="text">
-           <string>Device Name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QLabel" name="label_6">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_title_device_information_2">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="text">
-           <string>Device Model</string>
+           <string>Factory Reset</string>
           </property>
          </widget>
         </item>
@@ -1184,27 +1205,6 @@
             <string>Start At Time</string>
            </property>
           </item>
-         </widget>
-        </item>
-        <item row="4" column="3">
-         <widget class="QPushButton" name="btn_reset_factory_settings">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Reset</string>
-          </property>
-          <property name="statusTip">
-           <string>Reset the logger to default settings</string>
-          </property>
-          <property name="text">
-           <string>Factory Reset</string>
-          </property>
          </widget>
         </item>
         <item row="26" column="2" colspan="2">
@@ -1310,6 +1310,13 @@
           </property>
           <property name="text">
            <string>Sync Time</string>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="0" colspan="4">
+         <widget class="QLabel" name="label_logger_interval_show">
+          <property name="text">
+           <string>Loggin interval is currently set to Minute(s)</string>
           </property>
          </widget>
         </item>
@@ -1475,7 +1482,7 @@ QPushButton:pressed{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>518</width>
+     <width>530</width>
      <height>21</height>
     </rect>
    </property>
