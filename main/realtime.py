@@ -140,8 +140,8 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                     print('read again')
                     self.get_real_time_reading()
                 else:
-                    self.temp_lcd.display(float(tmp))
-                    self.hum_lcd.display(float(hum))
+                    self.temp_lcd.display(tmp)
+                    self.hum_lcd.display(hum)
                     self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
                     self.temperature_data.append(tmp)
                     self.humidity_data.append(hum)

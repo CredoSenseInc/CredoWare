@@ -65,6 +65,8 @@ class Reset(QMainWindow, Ui_Device_Selector):
         msg_box.setText(msg)
         msg_box.setWindowTitle("ERROR")
         msg_box.setStandardButtons(QMessageBox.Ok)
+        TaskConsumer().clear_task_queue()
+        self.closeEvent()
         msg_box.exec_()
 
     def task_done_callback(self, response):
@@ -184,6 +186,9 @@ class Reset(QMainWindow, Ui_Device_Selector):
 
     def erase_chip(self):
         TaskConsumer().insert_task(Task(TaskTypes.SERIAL_ERASE_CHIP, self.task_done_callback))
+        # import data_reader
+        # dr = data_reader.DataReader()
+        # dr.write('erase_chip')
 
     def write_data_points_length(self, points, length, nn):
         write_points = self.add_data_points + ' ' + points
@@ -212,6 +217,7 @@ class Reset(QMainWindow, Ui_Device_Selector):
             self.write_constant(self.n)
             self.data_points = '1'
             self.data_length = '2'
+
         elif self.comboBox.currentText() == 'CSL-H2 T0.2':
             self.max_task = 11
             self.data_points = '2'
@@ -222,7 +228,7 @@ class Reset(QMainWindow, Ui_Device_Selector):
 
         self.write_last_written_loaction()
 
-        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RENAME_DEV_NAME, self.task_done_callback, 'CSL Series Logger'))
+        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RENAME_DEV_NAME, self.task_done_callback, 'CSL_Series_Logger'))
         TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG, self.task_done_callback, '30'))
         TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback,
                                         '0 0:0:1 1/1/20 0 0:0:1 2/2/20'))
@@ -245,3 +251,7 @@ class Reset(QMainWindow, Ui_Device_Selector):
                 self.commport = ports[i].device
                 break
         return self.commport
+
+    def closeEvent(self, event):
+        TaskConsumer().clear_task_queue()
+        event.accept()

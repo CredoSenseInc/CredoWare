@@ -26,6 +26,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
         self.comboBox_temp_unit.currentIndexChanged.connect(self.onCurrentIndexChanged)
         self.setWindowTitle("Graph Window")
         self.btn_generate_report.clicked.connect(self.generate_report)
+        self.btn_save_csv_data.clicked.connect(self.save_data)
         self.temp_unit_now = 'C'
 
     def initialize_and_show(self, interval, data):
@@ -42,24 +43,26 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
         if self.iserror == '1' and self.data != []:
             msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Warning)
-            msg_box.setText("Memroy error found in logger\nErase logger data before starting new session")
+            msg_box.setText("Memory error found in logger\nErase logger data before starting new session")
             msg_box.setWindowTitle("Warning")
             msg_box.exec_()
 
-
     def generate_report(self):
-        msg_box = QMessageBox(self)
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText("Choose a report format: \nPDF will generate a summary report.\nCSV will save the raw data in CSV format.")
-        msg_box.setWindowTitle("Message")
-        pdftBtn = msg_box.addButton('PDF', QMessageBox.ActionRole)
-        csvBtn = msg_box.addButton('CSV', QMessageBox.ActionRole)
-        msg_box.addButton('Cancel', QMessageBox.RejectRole)
-        msg_box.exec_()
-        if msg_box.clickedButton() == pdftBtn:
-            self.choose_directory('pdf')
-        elif msg_box.clickedButton() == csvBtn:
-            self.choose_directory('csv')
+        # msg_box = QMessageBox(self)
+        # msg_box.setIcon(QMessageBox.Information)
+        # msg_box.setText("Choose a report format: \nPDF will generate a summary report.\nCSV will save the raw data in CSV format.")
+        # msg_box.setWindowTitle("Message")
+        # pdftBtn = msg_box.addButton('PDF', QMessageBox.ActionRole)
+        # csvBtn = msg_box.addButton('CSV', QMessageBox.ActionRole)
+        # msg_box.addButton('Cancel', QMessageBox.RejectRole)
+        # msg_box.exec_()
+        # if msg_box.clickedButton() == pdftBtn:
+        self.choose_directory('pdf')
+        # elif msg_box.clickedButton() == csvBtn:
+        # self.choose_directory('csv')
+
+    def save_data(self):
+        self.choose_directory('csv')
 
     def choose_directory(self, file_ext):
         qfd = QFileDialog(self)
@@ -178,41 +181,94 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                                       rh_alarm_lo=float(low_hum_value), rh_alarm_hi=float(high_hum_value),
                                       bmp_alarm_lo=float(low_pre_value), bmp_alarm_hi=float(high_pre_value))
 
-                self.file_write_done_message("PDF generation successful\nFile name: " + file_name)
-            except BaseException as er:
+                self.file_write_done_message("Report generation successful\nFile name: " + file_name)
+            except Exception as er:
                 print(er)
-                self.file_write_error_message("Error writing PDF file")
+                self.file_write_error_message("Error generating report")
                 pass
 
         elif file_ext == 'csv':
             import csv
-            with open(full_file_path, 'w+', newline='') as file:
-                writer = csv.writer(file)
+            try:
+                with open(full_file_path, 'w+', newline='') as file:
+                    writer = csv.writer(file)
 
-                if self.chk_dev_id == 'CSL-H2 P1 T0.2':
-                    writer.writerow(["Index", "Date-Time", "Temp", "RH", "BMP"])
-                    i = 0
-                    for x, y, z ,k in zip(self.timedate_data, self.temperature_data, self.humidity_data,
-                                       self.pressure_data):
-                        i += 1
-                        writer.writerow([i, x, y, z, k])
+                    # try:
+                    #     print(self.flag_finder(value_list=self.temperature_data, max_deviation=0.01))
+                    # except Exception as er:
+                    #     print(er)
 
-                if self.chk_dev_id == 'CSL-H2 T0.2':
-                    writer.writerow(["Index", "Date-Time", "Temp", "RH"])
-                    i = 0
-                    for x, y, z in zip(self.timedate_data, self.temperature_data, self.humidity_data):
-                        i += 1
-                        writer.writerow([i, x, y, z])
+                    if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+                        writer.writerow(["Index", "Date-Time", "Temp", "RH", "BMP"])
+                        i = 0
+                        for x, y, z, k in zip(self.timedate_data, self.temperature_data, self.humidity_data,
+                                              self.pressure_data):
+                            i += 1
+                            writer.writerow([i, x, y, z, k])
 
-                if self.chk_dev_id == 'CSL-T0.5':
-                    writer.writerow(["Index", "Date-time", "Temp"])
-                    i = 0
-                    for x, y in zip(self.timedate_data, self.temperature_data):
-                        i += 1
-                        writer.writerow([i, x, y])
+                    if self.chk_dev_id == 'CSL-H2 T0.2':
+                        writer.writerow(["Index", "Date-Time", "Temp", "RH", "Flag"])
 
-            self.file_write_done_message("CSV generation successful\nFile name: " + file_name)
+                        try:
+                            temp_flags = self.flag_finder(value_list=self.temperature_data, max_deviation=1)
+                            hum_flags = self.flag_finder(value_list=self.humidity_data, max_deviation=1)
 
+                            flags = []
+                            for i in range(0, len(temp_flags)):
+                                if temp_flags[i] == 1 or hum_flags[i] == 1:
+                                    flags.insert(i, 1)
+                                else:
+                                    flags.insert(i, 0)
+
+                            i = 0
+                            for x, y, z, f in zip(self.timedate_data, self.temperature_data, self.humidity_data, flags):
+                                i += 1
+                                writer.writerow([i, x, y, z, f])
+                        except Exception as er:
+                            print(er)
+                            pass
+
+                    if self.chk_dev_id == 'CSL-T0.5':
+                        writer.writerow(["Index", "Date-time", "Temp"])
+
+                        try:
+                            temp_flags = self.flag_finder(value_list=self.temperature_data, max_deviation=1)
+
+                            flags = []
+                            for i in range(0, len(temp_flags)):
+                                if temp_flags[i] == 1:
+                                    flags.insert(i, 1)
+                                else:
+                                    flags.insert(i, 0)
+
+                            i = 0
+                            for x, y, f in zip(self.timedate_data, self.temperature_data, flags):
+                                i += 1
+                                writer.writerow([i, x, y, f])
+                        except Exception as er:
+                            print(er)
+                            pass
+
+                self.file_write_done_message("Saving data successful\nFile name: " + file_name)
+            except Exception as er:
+                print(er)
+                self.file_write_error_message("Error saving data")
+                pass
+
+
+    def flag_finder(self, value_list, max_deviation):
+
+        flag_list = []
+        for i in range(0, len(value_list) - 1):
+            try:
+                if abs(float(value_list[i + 1]) - float(value_list[i])) > max_deviation:
+                    flag_list.insert(i, 1)
+                else:
+                    flag_list.insert(i, 0)
+            except:
+                flag_list.insert(i, 0)
+
+        return flag_list
 
     def onCurrentIndexChanged(self, ix):
         try:
@@ -271,7 +327,6 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.MplWidget.canvas.axes.legend()
 
             if self.chk_dev_id == 'CSL-T0.5':
-
                 self.comboBox_temp_unit.show()
                 self.label.show()
                 self.MplWidget.canvas.axes = self.MplWidget.canvas.figure.add_subplot(111)
@@ -357,8 +412,8 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                     # print(tend.strftime("%H:%M:%S %d/%m/%Y"))
                     self.end_dt = tend.strftime("%d %B %Y at %H:%M")
 
-            self.graph_start_dt.setText(f"Start : {self.start_dt}")
-            self.graph_end_dt.setText(f"End : {self.end_dt}")
+            self.graph_start_dt.setText(f" {self.start_dt}")
+            self.graph_end_dt.setText(f" {self.end_dt}")
 
             if self.chk_dev_id == 'CSL-H2 T0.2':
 
@@ -462,11 +517,11 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
         return fahrenheit
 
     def fahrenheit_to_celsius(self, fahrenheit):
-        celsius = ( fahrenheit - 32 ) * (5 / 9)
+        celsius = (fahrenheit - 32) * (5 / 9)
         return celsius
 
     def fahrenheit_to_kelvin(self, fahrenheit):
-        celsius = ( fahrenheit - 32 ) * (5 / 9)
+        celsius = (fahrenheit - 32) * (5 / 9)
         kelvin = self.celsius_to_kelvin(celsius)
         return kelvin
 

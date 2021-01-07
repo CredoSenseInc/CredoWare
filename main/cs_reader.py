@@ -93,6 +93,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.dateTimeEdit_logging_start.hide()
         self.dateTimeEdit_logging_stop.hide()
+        self.label_24h.hide()
         self.label_logger_interval_show.setText("")
 
         self.show()
@@ -260,9 +261,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def rename_device(self):
-        if self.is_reading_mode():
-            new_name = self.lineEdit_device_name.text()
-            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RENAME_DEV_NAME, self.task_done_callback, new_name))
+
+        test = self.lineEdit_device_name.text()
+
+        if ' ' in test:
+            self.show_alert_dialog('Space is not allowed in device name.\nPlease use \'_\' or \'-\' instead')
+        elif not test.isascii():
+            self.show_alert_dialog('Invalid characters found in name.')
+        elif len(test) > 255:
+            self.show_alert_dialog('Device name can be maximum 255 characters')
+        else:
+            if self.is_reading_mode():
+                new_name = self.lineEdit_device_name.text()
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RENAME_DEV_NAME, self.task_done_callback, new_name))
 
     def erase_data(self):
         reply = QMessageBox.question(self, 'Message', "Are you sure ? All data will be deleted with this action.",
@@ -406,16 +417,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 pass
 
     def logging_start_selection_changed(self, i):
+        if self.comboBox_logging_start.currentIndex() == 0 and self.comboBox_logging_stop.currentIndex() == 0:
+            self.label_24h.hide()
+
         if i == 0:
             self.dateTimeEdit_logging_start.hide()
         else:
             self.dateTimeEdit_logging_start.show()
+            self.label_24h.show()
 
     def logging_stop_selection_changed(self, i):
+        if self.comboBox_logging_start.currentIndex() == 0 and self.comboBox_logging_stop.currentIndex() == 0:
+            self.label_24h.hide()
+
         if i == 0:
             self.dateTimeEdit_logging_stop.hide()
         else:
             self.dateTimeEdit_logging_stop.show()
+            self.label_24h.show()
 
     def toogle_dst(self):
         if self.is_reading_mode():
@@ -543,6 +562,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     msg_box.exec_()
             except Exception as er:
                 self.show_error_dialog("Error! Data corrupted\nPlease erase all logged data")
+                reply = QMessageBox.question(self, 'Recovery', "Do you want to save the corrupted data to a text file?", QMessageBox.Yes, QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    qfd = QFileDialog(self)
+                    options = qfd.Options()
+                    options |= qfd.DontUseNativeDialog
+                    file_dir = qfd.getExistingDirectory(self, "Choose a folder", "", qfd.ShowDirsOnly)
+                    if file_dir:
+                        full_file_path = os.path.join(file_dir, 'Recovery_CSL_Series_Logger.txt')
+                        f = open(full_file_path, "w+")
+                        f.write("Data Format: \nLogging start time: Hour("
+                                "24hour):Minute:Second<space>Date/Month/Year<space>Data points<space>Interval, "
+                                "\nRecordings: \'Temperature<space>Humidity<space>Pressure\'\n")
+                        f.write(str(response['data']))
                 self.p.close()
                 print(er)
 
@@ -783,8 +815,8 @@ if __name__ == '__main__':
 
         screen_resolution = app.desktop().screenGeometry()
         width, height = screen_resolution.width(), screen_resolution.height()
-        w = 530
-        h = 740
+        w = 550
+        h = 730
         app.setApplicationName("CredoWare")
         try:
             app.setWindowIcon(QtGui.QIcon("logo.png"))

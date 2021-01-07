@@ -28,7 +28,7 @@ class DataReader(metaclass=SingletonMeta):
     def open(self, url):
         print(url)
         if self.ser is None:
-            self.ser = serial.Serial(url, 2000000, timeout=3)
+            self.ser = serial.Serial(url, 2000000)
             time.sleep(2)
             print('port opened')
         elif not self.is_port_open():
@@ -49,7 +49,11 @@ class DataReader(metaclass=SingletonMeta):
         from task_consumer import TaskTypes
         # print(task_type)
         self.ser.write(task_type.encode('ascii'))
-
+        if task_type == TaskTypes.SERIAL_ERASE_CHIP:
+            self.ser.timeout = None
+        else:
+            self.ser.timeout = 3
+            pass
         data_lst = []
         while True:
             if not self.is_port_open():
@@ -57,22 +61,24 @@ class DataReader(metaclass=SingletonMeta):
             try:
                 data = self.ser.readline().decode('utf-8').rstrip('\r\n')
                 print(data)
-            except:
+            except Exception as er:
+                print(er)
                 pass
             if data == "ready":
                 self.ser.reset_input_buffer()
                 self.ser.reset_output_buffer()
                 break
             else:
-                if not task_type == TaskTypes.SERIAL_ERASE:
+                if not (task_type == TaskTypes.SERIAL_ERASE):
                     data_lst.append(data)
 
         if task_type == TaskTypes.SERIAL_READ_LOGGER_DATA:
             return data_lst
-        if not task_type == TaskTypes.SERIAL_ERASE:
+        if not (task_type == TaskTypes.SERIAL_ERASE):
             try:
                 return data_lst[0]
-            except:
+            except Exception as er:
+                print(er)
                 return None
         else:
             return None
