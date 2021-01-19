@@ -255,20 +255,52 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.file_write_error_message("Error saving data")
                 pass
 
-
     def flag_finder(self, value_list, max_deviation):
 
         flag_list = []
         for i in range(0, len(value_list) - 1):
             try:
-                if abs(float(value_list[i + 1]) - float(value_list[i])) > max_deviation:
+                if abs(float(value_list[i + 1]) - float(value_list[i])) > max_deviation or math.isnan(
+                        float(value_list[i])):
                     flag_list.insert(i, 1)
                 else:
                     flag_list.insert(i, 0)
             except:
+                print('exception')
                 flag_list.insert(i, 0)
-
-        return flag_list
+    """
+        The part below is for z score evaluation for data flagging
+    """
+    # def flag_finder2(value_list):
+    #     # mean_of_all_data =
+    #     flag_list = []
+    #
+    #     # if NaN is
+    #     mean_of_all = numpy.mean(value_list)
+    #     sd_of_all = numpy.std(value_list)
+    #
+    #     print(mean_of_all)
+    #     print(sd_of_all)
+    #
+    #     for i in range(0, len(value_list)):
+    #
+    #         print('\n......')
+    #         print(i)
+    #
+    #         print(value_list[i])
+    #         z_score = (value_list[i] - mean_of_all) / sd_of_all
+    #         print(f'z score is : {z_score}')
+    #         try:
+    #             if z_score > 1.5:
+    #                 flag_list.insert(i, 1)
+    #             else:
+    #                 flag_list.insert(i, 0)
+    #                 print('ignored')
+    #         except:
+    #             flag_list.insert(i, 0)
+    #             print('ignored by default')
+    #
+    #     return flag_list
 
     def onCurrentIndexChanged(self, ix):
         try:
@@ -317,14 +349,14 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                     self.float_temp_data.append(float(self.temperature_data[i]))
 
                 self.MplWidget.canvas.axes.plot(self.timedate_data, self.float_temp_data, linestyle='solid',
-                                                label='Temperature', color='r', marker='.')
+                                                label='_nolegend_', color='r', marker='.')
                 self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
                 self.MplWidget.canvas.axes.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
                 self.MplWidget.canvas.axes.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
                 self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
                 self.MplWidget.canvas.axes.set_ylabel('Temperature', fontweight='bold')
                 self.MplWidget.canvas.figure.autofmt_xdate()
-                self.MplWidget.canvas.axes.legend()
+                # self.MplWidget.canvas.axes.legend()
 
             if self.chk_dev_id == 'CSL-T0.5':
                 self.comboBox_temp_unit.show()
@@ -424,17 +456,38 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 logger.info(self.timedate_data)
                 self.float_temp_data = []
                 self.float_hum_data = []
-
+                self.modified_timedate_data = []
                 for i in range(0, len(self.temperature_data)):
-                    self.float_temp_data.append(float(self.temperature_data[i]))
+
+                    if self.temp_unit_now == 'C':
+                        if not float(self.temperature_data[i]) <= 85 or \
+                                float(self.temperature_data[i]) >= -45 or \
+                                not math.isnan(float(self.temperature_data[i])):
+                            self.float_temp_data.append(float(self.temperature_data[i]))
+                            self.modified_timedate_data.append((self.timedate_data[i]))
+                    elif self.temp_unit_now == 'F':
+                        if not float(self.temperature_data[i]) <= 185 or \
+                                float(self.temperature_data[i]) >= -49 or \
+                                not math.isnan(float(self.temperature_data[i])):
+                            self.float_temp_data.append(float(self.temperature_data[i]))
+                            self.modified_timedate_data.append((self.timedate_data[i]))
+                    elif self.temp_unit_now == 'K':
+                        if not float(self.temperature_data[i]) <= 358.15 or \
+                                float(self.temperature_data[i]) >= 228.15 or \
+                                not math.isnan(float(self.temperature_data[i])):
+                            self.float_temp_data.append(float(self.temperature_data[i]))
+                            self.modified_timedate_data.append((self.timedate_data[i]))
 
                 for i in range(0, len(self.humidity_data)):
-                    self.float_hum_data.append(float(self.humidity_data[i]))
+                    if not math.isnan(float(self.humidity_data[i])) or \
+                            float(self.humidity_data[i]) < 100 or \
+                            float(self.humidity_data[i]) > 0:
+                        self.float_hum_data.append(float(self.humidity_data[i]))
 
-                self.MplWidget.canvas.axes.plot(self.timedate_data, self.float_temp_data, linestyle='solid',
-                                                label='Temperature', color='r', marker='.')
-                self.MplWidget.canvas.axes2.plot(self.timedate_data, self.float_hum_data, linestyle='solid',
-                                                 label='Relative Humidity(%)', color='b', marker='.')
+                self.MplWidget.canvas.axes.plot(self.modified_timedate_data, self.float_temp_data, linestyle='solid',
+                                                label='_nolegend_', color='r', marker='.')
+                self.MplWidget.canvas.axes2.plot(self.modified_timedate_data, self.float_hum_data, linestyle='solid',
+                                                 label='_nolegend_', color='b', marker='.')
 
                 self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
                 self.MplWidget.canvas.axes2.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -446,12 +499,12 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
                 self.MplWidget.canvas.axes.set_ylabel('Temperature', fontweight='bold')
                 self.MplWidget.canvas.axes2.set_xlabel('Date-Time', fontweight='bold')
-                self.MplWidget.canvas.axes2.set_ylabel('Humidity', fontweight='bold')
+                self.MplWidget.canvas.axes2.set_ylabel('Relative Humidity (%)', fontweight='bold')
 
                 self.MplWidget.canvas.figure.autofmt_xdate()
 
-                self.MplWidget.canvas.axes.legend()
-                self.MplWidget.canvas.axes2.legend()
+                # self.MplWidget.canvas.axes.legend()
+                # self.MplWidget.canvas.axes2.legend()
 
             if self.chk_dev_id == 'CSL-T0.5':
 
@@ -460,11 +513,32 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 for i in range(0, len(self.temperature_data)):
                     self.temperature_data[i] = (self.apply_rules_to_values(float(self.temperature_data[i])))
 
+                self.float_temp_data = []
+                self.modified_timedate_data = []
+
+                for i in range(0, len(self.temperature_data)):
+                    if not math.isnan(float(self.temperature_data[i])):
+                        if self.temp_unit_now == 'C':
+                            if not float(self.temperature_data[i]) >= 85 or \
+                                    float(self.temperature_data[i]) <= -45:
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
+                        elif self.temp_unit_now == 'F':
+                            if not float(self.temperature_data[i]) >= 185 or \
+                                    float(self.temperature_data[i]) <= -49:
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
+                        elif self.temp_unit_now == 'K':
+                            if not float(self.temperature_data[i]) >= 358.15 or \
+                                    float(self.temperature_data[i]) <= 228.15:
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
+
                 self.MplWidget.canvas.axes = self.MplWidget.canvas.figure.add_subplot(111)
                 self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
                 self.MplWidget.canvas.axes.set_ylabel('Temperature', fontweight='bold')
-                self.MplWidget.canvas.axes.plot(self.timedate_data, self.temperature_data, linestyle='solid',
-                                                label='Temperature', color='r', marker='.')
+                self.MplWidget.canvas.axes.plot(self.modified_timedate_data, self.float_temp_data, linestyle='solid',
+                                                label='_nolegend_', color='r', marker='.')
 
                 self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
                 self.MplWidget.canvas.axes.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))

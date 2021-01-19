@@ -284,29 +284,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_ERASE, self.task_done_callback))
 
     def set_logging_start_stop(self):
-        if self.is_reading_mode():
-            start_status = self.comboBox_logging_start.currentIndex()
-            stop_status = self.comboBox_logging_stop.currentIndex()
-            cdt = QDateTime.currentDateTime()
 
-            if start_status == 1 and self.dateTimeEdit_logging_start.dateTime() <= cdt:
-                self.show_alert_dialog("Start date & time cannot be less than current date & time.")
+        start_status = self.comboBox_logging_start.currentIndex()
+        stop_status = self.comboBox_logging_stop.currentIndex()
+        cdt = QDateTime.currentDateTime()
+
+        if start_status == 1 and self.dateTimeEdit_logging_start.dateTime() <= cdt:
+            self.waiting_window_end()
+            self.show_alert_dialog("Start date & time cannot be less than current date & time.")
+            return
+
+        elif stop_status == 1 and self.dateTimeEdit_logging_stop.dateTime() <= cdt:
+            self.waiting_window_end()
+            self.show_alert_dialog("Stop date & time cannot be less than current date & time.")
+            return
+
+        elif start_status == 1 and stop_status == 1:
+            if self.dateTimeEdit_logging_start.dateTime() >= self.dateTimeEdit_logging_stop.dateTime():
+                self.waiting_window_end()
+                self.show_alert_dialog("Start date & time should be greater than stop date & time.")
                 return
-
-            if stop_status == 1 and self.dateTimeEdit_logging_stop.dateTime() <= cdt:
-                self.show_alert_dialog("Stop date & time cannot be less than current date & time.")
-                return
-
-            if start_status == 1 and stop_status == 1:
-                if self.dateTimeEdit_logging_start.dateTime() >= self.dateTimeEdit_logging_stop.dateTime():
-                    self.show_alert_dialog("Start date & time should be greater than stop date & time.")
-                    return
-
-            start_td = self.dateTimeEdit_logging_start.dateTime().toString("h:m:s d/M/yy")
-            stop_td = self.dateTimeEdit_logging_stop.dateTime().toString("h:m:s d/M/yy")
-            w_str = " ".join([str(start_status), start_td, str(stop_status), stop_td])
-            print(w_str)
-            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback, w_str))
+        else:
+            if self.is_reading_mode():
+                start_td = self.dateTimeEdit_logging_start.dateTime().toString("h:m:s d/M/yy")
+                stop_td = self.dateTimeEdit_logging_stop.dateTime().toString("h:m:s d/M/yy")
+                w_str = " ".join([str(start_status), start_td, str(stop_status), stop_td])
+                # print(w_str)
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback, w_str))
 
     def set_alarm(self):
         high_temp = 85
@@ -326,22 +330,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.lineEdit_low_pressure.setDisabled(True)
 
                     if low_temp > high_temp:
+                        self.waiting_window_end()
                         self.show_alert_dialog("High temperature should be greater than low.")
                         return
                     elif high_temp > 85:
+                        self.waiting_window_end()
                         self.show_alert_dialog("High temperature can be maximum 85.")
                         return
                     elif low_temp < -45:
+                        self.waiting_window_end()
                         self.show_alert_dialog("Low temperature should be greater than or equal to -45.")
                         return
 
                     if low_hum > high_hum:
+                        self.waiting_window_end()
                         self.show_alert_dialog("High humidity should be greater than low.")
                         return
                     elif high_hum > 100:
+                        self.waiting_window_end()
                         self.show_alert_dialog("Humidity can be maximum 100.")
                         return
                     elif low_hum < 0:
+                        self.waiting_window_end()
                         self.show_alert_dialog("Minimum value 0.")
                         return
 
@@ -412,8 +422,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_ALARM, self.task_done_callback, new_str))
 
             except ValueError:
+                self.waiting_window_end()
                 self.show_alert_dialog("Only integer numbers are supported for alarm")
+
             except AttributeError:
+                self.waiting_window_end()
                 pass
 
     def logging_start_selection_changed(self, i):
@@ -695,18 +708,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.show_error_dialog("error in stop option")
 
     def set_logging_interval(self):
-        if self.is_reading_mode():
-            interval_value = self.lineEdit_logging_interval.text()
+        interval_value = self.lineEdit_logging_interval.text()
 
-            if interval_value == "":
-                self.show_alert_dialog("Interval cannot be empty")
-                return
+        if interval_value == "":
+            self.waiting_window_end()
+            self.show_alert_dialog("Interval cannot be empty")
+            return
 
-            elif not interval_value.isnumeric() or int(interval_value) > 1440 or int(interval_value) < 1:
-                self.show_alert_dialog("Interval should be positive and within range 1 to 1440")
-                return
+        elif not interval_value.isnumeric() or int(interval_value) > 1440 or int(interval_value) < 1:
+            self.waiting_window_end()
+            self.show_alert_dialog("Interval should be positive and within range 1 to 1440")
+            return
 
-            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG, self.task_done_callback, interval_value))
+        else:
+            if self.is_reading_mode():
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG, self.task_done_callback, interval_value))
 
     def start_reading_logger_data(self):
 
