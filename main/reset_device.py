@@ -56,8 +56,14 @@ class Reset(QMainWindow, Ui_Device_Selector):
         for i in range(0,101):
             self.progressBar.setValue(i)
             time.sleep(.1)
+        self.resetButton.clicked.disconnect(self.proceed_to_reset)
         self.resetButton.setText("Done")
+        self.resetButton.setDisabled(False)
+        self.resetButton.clicked.connect(self.close_it)
         self.bottom_label.setText("Close this window and restart CredoWare")
+
+    def close_it(self):
+        self.close()
 
     def show_error_dialog(self, msg):
         msg_box = QMessageBox(self)
@@ -202,39 +208,62 @@ class Reset(QMainWindow, Ui_Device_Selector):
             TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_BYTE, self.task_done_callback, write_length))
 
     def proceed_to_reset(self):
-        self.resetButton.setDisabled(True)
-        self.progressBar.show()
-        self.comboBox.setDisabled(True)
-        self.resetButton.setText("Resetting. Do not close this window")
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Warning)
+        msg_box.setText("Please make sure to select the correct device model.\
+        \nSelecting incorrect model will lead to device malfunction.\nDo you want to proceed?")
+        msg_box.setWindowTitle("Confirmation")
+        exit_btn = msg_box.addButton('No', QMessageBox.ActionRole)
+        ok_btn = msg_box.addButton('Yes', QMessageBox.ActionRole)
 
-        self.erase_chip()
+        exit_btn.setStyleSheet('padding:5px;')
+        exit_btn.setMinimumWidth(60)
+        exit_btn.setMinimumHeight(15)
+        ok_btn.setStyleSheet('padding:5px;')
+        ok_btn.setMinimumHeight(15)
+        ok_btn.setMinimumWidth(60)
+        # msg_box.defaultButton(QMessageBox.NoButton)
+        msg_box.exec_()
+        if msg_box.clickedButton() == exit_btn:
+            pass
+        elif msg_box.clickedButton() == ok_btn:
+            self.resetButton.setDisabled(True)
+            self.progressBar.show()
+            self.comboBox.setDisabled(True)
+            self.resetButton.setText("Resetting. Do not close this window")
 
-        self.write_ID(self.comboBox.currentText())
+            self.erase_chip()
 
-        if self.comboBox.currentText() == 'CSL-T0.5':
-            self.max_task = 15
-            self.n = 0
-            self.write_constant(self.n)
-            self.data_points = '1'
-            self.data_length = '2'
+            self.write_ID(self.comboBox.currentText())
 
-        elif self.comboBox.currentText() == 'CSL-H2 T0.2':
-            self.max_task = 11
-            self.data_points = '2'
-            self.data_length = '4'
+            if self.comboBox.currentText() == 'CSL-T0.5':
+                self.max_task = 15
+                self.n = 0
+                self.write_constant(self.n)
+                self.data_points = '1'
+                self.data_length = '2'
 
+            elif self.comboBox.currentText() == 'CSL-H2 T0.2':
+                self.max_task = 11
+                self.data_points = '2'
+                self.data_length = '4'
 
-        self.write_data_points_length(self.data_points, self.data_length, self.nn)
+            self.write_data_points_length(self.data_points, self.data_length, self.nn)
 
-        self.write_last_written_loaction()
+            self.write_last_written_loaction()
 
-        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RENAME_DEV_NAME, self.task_done_callback, 'CSL_Series_Logger'))
-        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG, self.task_done_callback, '30'))
-        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback,
-                                        '0 0:0:1 1/1/20 0 0:0:1 2/2/20'))
-        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_DAYLIGHT, self.task_done_callback, '0'))
-        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_ALARM, self.task_done_callback, '1 50 -20 80 30 1100 '
-                                                                                               '800'))
+            TaskConsumer().insert_task(
+            Task(TaskTypes.SERIAL_RENAME_DEV_NAME, self.task_done_callback, 'CSL_Series_Logger'))
+            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG, self.task_done_callback, '30'))
+            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback,
+                                            '0 0:0:1 1/1/20 0 0:0:1 2/2/20'))
+            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_DAYLIGHT, self.task_done_callback, '0'))
+            TaskConsumer().insert_task(
+                Task(TaskTypes.SERIAL_WRITE_ALARM, self.task_done_callback, '1 50 -20 80 30 1100 '
+                                                                            '800'))
+        else:
+            pass
+
 
 #         # self.progressBar.setValue(100)
         # self.resetButton.setText("Done")

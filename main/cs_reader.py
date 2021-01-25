@@ -67,13 +67,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.port_select_window.initialize_and_show()
         # self.port_select_window.button_select_port.clicked.connect(self.initialize_main_window)
 
+        self.logger_connected = None
+
         self.actionTurn_ON.triggered.connect(lambda: self.led_on())
         self.actionTrun_OFF.triggered.connect(lambda: self.led_off())
 
         self.checkBox_dst.setDisabled(True)
-        self.reconnect_button.clicked.connect(self.reconnect)
-        self.reconnect_button.hide()
-        # self.btn_reset_factory_settings.clicked.connect(self.reset_device)
+
+        self.connect_button.hide()
 
         self.actionAbout.triggered.connect(lambda: self.about_window.initialize_and_show())
         self.actionExit.triggered.connect(QApplication.closeAllWindows)
@@ -109,6 +110,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #     self.port_select_window.hide()
     #     self.show()
     #     self.init_timers()
+    def disconnect_logger(self):
+
+        self.connect_button.setDisabled(True)
+        self.clear_labels()
+        try:
+            self.disconnect_buttons()
+        except TypeError:
+            pass
+
+        self.label_device_id.setText("Disconnecting Logger. Please wait")
+        self.label_device_id.setStyleSheet('color:red;')
+
+        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DISCONNECT_LOGGER, self.task_done_callback))
+
+    def connect_logger(self):
+
+        self.connect_button.setDisabled(True)
+
+        self.label_device_id.setText("Searching for Logger.")
+        self.label_device_id.setStyleSheet('color:orange;')
+        self.label_device_id.show()
+
+        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_CONNECT_LOGGER, self.task_done_callback))
 
     def init_timers(self):
         self.init_queue_task_consumer_thread()
@@ -133,14 +157,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_set_logging_interval.clicked.connect(self.set_logging_interval)
         self.btn_device_rename.clicked.connect(self.rename_device)
 
-        self.checkBox_dst.setDisabled(False)
+        # self.checkBox_dst.setDisabled(False)
         self.checkBox_dst.clicked.connect(self.toogle_dst)
 
         self.btn_sync_device_system_time.clicked.connect(self.sync_device_and_system_time)
         self.btn_set_alarm.clicked.connect(self.set_alarm)
+
+        # self.btn_erase_data.setDisabled(False)
         self.btn_erase_data.clicked.connect(self.erase_data)
+
         self.btn_set_start_stop_option.clicked.connect(self.set_logging_start_stop)
-        self.btn_reset_factory_settings.setDisabled(False)
+
+        # self.btn_reset_factory_settings.setDisabled(False)
         self.btn_reset_factory_settings.clicked.connect(self.reset_device)
 
     def led_off(self):
@@ -165,9 +193,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.btn_sync_device_system_time.clicked.disconnect(self.sync_device_and_system_time)
         self.btn_set_alarm.clicked.disconnect(self.set_alarm)
+        # self.btn_erase_data.setDisabled(True)
         self.btn_erase_data.clicked.disconnect(self.erase_data)
         self.btn_set_start_stop_option.clicked.disconnect(self.set_logging_start_stop)
-        self.btn_reset_factory_settings.setDisabled(True)
+
+        # self.btn_reset_factory_settings.setDisabled(True)
 
     def reset_device(self):
         if not self.device_selecton.isActiveWindow():
@@ -282,11 +312,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # logger.debug("worked")
             if self.is_reading_mode():
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_ERASE, self.task_done_callback))
+        if reply == QMessageBox.No:
+            pass
 
     def set_logging_start_stop(self):
 
         start_status = self.comboBox_logging_start.currentIndex()
+        print(f'start stat: {start_status}')
+
         stop_status = self.comboBox_logging_stop.currentIndex()
+        print(f'stop stat: {stop_status}')
+
         cdt = QDateTime.currentDateTime()
 
         if start_status == 1 and self.dateTimeEdit_logging_start.dateTime() <= cdt:
@@ -299,18 +335,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.show_alert_dialog("Stop date & time cannot be less than current date & time.")
             return
 
-        elif start_status == 1 and stop_status == 1:
-            if self.dateTimeEdit_logging_start.dateTime() >= self.dateTimeEdit_logging_stop.dateTime():
-                self.waiting_window_end()
-                self.show_alert_dialog("Start date & time should be greater than stop date & time.")
-                return
+        elif start_status == 1 and stop_status == 1 and self.dateTimeEdit_logging_start.dateTime() >= self.dateTimeEdit_logging_stop.dateTime():
+            self.waiting_window_end()
+            self.show_alert_dialog("Start date & time should be greater than stop date & time.")
+            return
+
         else:
             if self.is_reading_mode():
                 start_td = self.dateTimeEdit_logging_start.dateTime().toString("h:m:s d/M/yy")
                 stop_td = self.dateTimeEdit_logging_stop.dateTime().toString("h:m:s d/M/yy")
                 w_str = " ".join([str(start_status), start_td, str(stop_status), stop_td])
-                # print(w_str)
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback, w_str))
+                print(w_str)
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback, str(w_str)))
 
     def set_alarm(self):
         high_temp = 85
@@ -469,213 +505,277 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_TIME, self.task_done_callback, dt_str))
 
     def task_done_callback(self, response):
-        print(f"task response : {response}")
-        self.waiting_window_end()
-        if 'exception' in response:
-            return
+        try:
+            print(f"task response : {response}")
+            if len(TaskConsumer().q) <= 1:
+                self.waiting_window_end()
 
-        if response['task_type'] == TaskTypes.SERIAL_OPEN:
-            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
+            if response['data'] == None and response['task_type'] != TaskTypes.SERIAL_ERASE:
+                TaskConsumer().clear_task_queue()
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_OPEN, self.task_done_callback))
 
-        elif response['task_type'] == TaskTypes.SERIAL_READING_MODE:
-            data = response['data']
+            if 'exception' in response:
+                return
 
-            if data == 'no_device':
-                self.label_device_id.setText('Connect a CSL Series Logger in programming mode')
-                self.label_device_id.setStyleSheet('color:red;')
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
+            if response['task_type'] == TaskTypes.SERIAL_OPEN:
+                # self.connect_button.show()
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_CONNECT_LOGGER, self.task_done_callback))
+                # print('done')
+                pass
+                # TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
-            elif data == 'not_found':
-                self.label_device_id.setText('Connect a CSL Series Logger in programming mode')
-                self.label_device_id.setStyleSheet('color:orange')
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
+            elif response['task_type'] == TaskTypes.SERIAL_CONNECT_LOGGER:
+                data = response['data']
+                if data == 'yes' or data == 'connected':
+                    self.logger_connected = True
+                    self.connect_button.setText("Disconnect")
+                    self.connect_button.clicked.disconnect()
+                    self.connect_button.clicked.connect(self.disconnect_logger)
+                    self.connect_button.setDisabled(False)
 
-            elif data == 'found':
-                self.waiting_window()
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_ID, self.task_done_callback))
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_TIME_BATTERY, self.task_done_callback))
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_NAME, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
+                else:
+                    self.connect_button.setDisabled(True)
+                    self.label_device_id.setText('Searching for Logger')
+                    self.label_device_id.setStyleSheet('color:orange;')
+
+                    TaskConsumer().clear_task_queue()
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_CONNECT_LOGGER, self.task_done_callback))
+
+            elif response['task_type'] == TaskTypes.SERIAL_DISCONNECT_LOGGER:
+                data = response['data']
+                if data == 'yes' or data == 'disconnected':
+                    self.logger_connected = False
+                    self.label_device_id.setText('Disconnected')
+                    self.label_device_id.setStyleSheet('color:red;')
+
+                    self.connect_button.setText("Connect")
+                    self.connect_button.clicked.disconnect()
+                    self.connect_button.clicked.connect(self.connect_logger)
+                    self.connect_button.setDisabled(False)
+
+                    TaskConsumer().clear_task_queue()
+                elif data == 'no':
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DISCONNECT_LOGGER, self.task_done_callback))
+                else:
+                    print('no data')
+
+            elif response['task_type'] == TaskTypes.SERIAL_READING_MODE:
+                data = response['data']
+
+                if data == 'no_device':
+                    self.label_device_id.setText('Disconnected')
+                    self.label_device_id.setStyleSheet('color:red;')
+                    self.connect_button.setText("Connect")
+                    self.connect_button.clicked.disconnect(self.disconnect_logger)
+                    self.connect_button.clicked.connect(self.connect_logger)
+                    self.connect_button.setDisabled(False)
+                    TaskConsumer().clear_task_queue()
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
+
+                elif data == 'not_found':
+                    self.label_device_id.setText('Disconnected')
+                    self.label_device_id.setStyleSheet('color:red;')
+                    self.connect_button.setText("Connect")
+                    self.connect_button.clicked.disconnect(self.disconnect_logger)
+                    self.connect_button.clicked.connect(self.connect_logger)
+                    self.connect_button.setDisabled(False)
+                    TaskConsumer().clear_task_queue()
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
+
+                elif data == 'found':
+                    self.waiting_window()
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_ID, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_BATTERY, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_TIME, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_NAME, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOG, self.task_done_callback))
+
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_DAYLIGHT, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_ALARM, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RTC_ERROR, self.task_done_callback))
+
+            elif response['task_type'] == TaskTypes.SERIAL_TIME:
+                time, date = response['data'].strip().split()
+                    #
+                    # if battery_percentage>100:
+                    #     battery_percentage = 100
+                    # self.label_battery_level_low_signal.setText(', ' + str(int(battery_percentage)) + '% '
+                    #                                                                                            'remaining')
+
+                datetime_str = date + ' ' + time
+                try:
+                    datetime_object = datetime.datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
+                    utils.CURRENT_DEVICE_TIME_RESPONSE = datetime_object
+                    self.update_device_time()
+                    if self.label_device_time.text() != self.label_system_time.text():
+                        self.btn_sync_device_system_time.setStyleSheet("background-color: rgb(237, 65, 65);\n""color: "
+                                                                       "rgb(255, 255, 255);")
+                    else:
+                        self.btn_sync_device_system_time.setStyleSheet(
+                            "background-color: rgb(34, 232, 28);\n""color: rgb(0, 0, 0);")
+
+                except ValueError:
+                    self.show_alert_dialog("Logger timekeeping failed.\nPlease change/insert battery before syncing time")
+
+            elif response['task_type'] == TaskTypes.SERIAL_BATTERY:
+                battery = response['data']
+                self.label_battery_level.setText(str(battery) + " V")
+                self.label_battery_level.show()
+                if float(battery.strip()) <= CONSCIOUS_BATTERY_LEVEL:
+                    if float(battery.strip()) <= 1.0:
+                        self.label_battery_level_low_signal.setText("No battery")
+                        self.label_battery_level.hide()
+                    else:
+                        self.label_battery_level_low_signal.setText("Battery low, please replace (CR2450)")
+                    self.label_battery_level_low_signal.setStyleSheet("color: red; ")
+                else:
+                    self.label_battery_level_low_signal.setStyleSheet("")
+                    self.label_battery_level_low_signal.setText("")
+
+            elif response['task_type'] == TaskTypes.SERIAL_RTC_ERROR:
+                self.label_device_id.setText("Connected")
+                # self.connect_button.setText("Disconnect")
+                self.connect_button.show()
+                self.connect_button.clicked.connect(self.disconnect_logger)
+                self.connect_buttons()
+                self.waiting_window_end()
+                if response['data'] == 'yes':
+                    self.show_alert_dialog("Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
+
+            elif response['task_type'] == TaskTypes.SERIAL_DEV_NAME:
+                self.lineEdit_device_name.setText(response['data'])
+
+            elif response['task_type'] == TaskTypes.SERIAL_READ_CONST:
+                utils.READ_CONST_RESPONSE = response['data']
+                # print(utils.READ_CONST_RESPONSE)
+
+            elif response['task_type'] == TaskTypes.SERIAL_READ_LOGGER_DATA:
+                # self.msg_box_read_log_data.close()
+                # self.msg_box_read_log_data.close()
+
+                self.p.progressBar.setValue(80)
+                self.p.setWindowTitle('Generating graph')
+                logger_plot_window = LoggerPlotWindow(self)
+                try:
+                    if response['data']:
+                        logger_plot_window.initialize_and_show(1, response['data'])
+                        self.p.progressBar.setValue(100)
+                        self.p.close()
+                    else:
+                        self.p.close()
+                        msg_box = QMessageBox(self)
+                        msg_box.setIcon(QMessageBox.Information)
+                        msg_box.setText("Logger has no data")
+                        msg_box.setWindowTitle("Message")
+                        msg_box.setStandardButtons(QMessageBox.Ok)
+                        msg_box.exec_()
+                except Exception as er:
+                    self.show_error_dialog("Error! Data corrupted\nPlease erase all logged data")
+                    reply = QMessageBox.question(self, 'Recovery', "Do you want to save the corrupted data to a text file?", QMessageBox.Yes, QMessageBox.No)
+                    if reply == QMessageBox.Yes:
+                        qfd = QFileDialog(self)
+                        options = qfd.Options()
+                        options |= qfd.DontUseNativeDialog
+                        file_dir = qfd.getExistingDirectory(self, "Choose a folder", "", qfd.ShowDirsOnly)
+                        if file_dir:
+                            full_file_path = os.path.join(file_dir, 'Recovery_CSL_Series_Logger.txt')
+                            f = open(full_file_path, "w+")
+                            f.write("Data Format: \nLogging start time: Hour("
+                                    "24hour):Minute:Second<space>Date/Month/Year<space>Data points<space>Interval, "
+                                    "\nRecordings: \'Temperature<space>Humidity<space>Pressure\'\n")
+                            f.write(str(response['data']))
+                    self.p.close()
+                    print(er)
+
+            elif response['task_type'] == TaskTypes.SERIAL_RENAME_DEV_NAME:
+                self.show_alert_dialog("Device rename successful!")
+
+            elif response['task_type'] == TaskTypes.SERIAL_WRITE_TIME:
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_TIME, self.task_done_callback))
+                self.show_alert_dialog("Write time successful!")
+
+            elif response['task_type'] == TaskTypes.SERIAL_WRITE_LOG:
                 TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOG, self.task_done_callback))
+                self.show_alert_dialog("Logging interval set successfully!")
 
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_DAYLIGHT, self.task_done_callback))
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_ALARM, self.task_done_callback))
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RTC_ERROR, self.task_done_callback))
+            elif response['task_type'] == TaskTypes.SERIAL_ERASE:
+                self.show_alert_dialog("Erase successful")
 
-        elif response['task_type'] == TaskTypes.SERIAL_TIME_BATTERY:
-            time, date, battery = response['data'].strip().split()
-            self.label_battery_level.setText(battery + " V")
-            self.label_battery_level.show()
-            if float(battery.strip()) <= CONSCIOUS_BATTERY_LEVEL:
-                if float(battery.strip()) <= 1.0:
-                    self.label_battery_level_low_signal.setText("No battery")
-                    self.label_battery_level.hide()
+            elif response['task_type'] == TaskTypes.SERIAL_WRITE_LOG_START_STOP:
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOG, self.task_done_callback))
+                self.show_alert_dialog("Logging start stop time setting successful!")
+
+
+            elif response['task_type'] == TaskTypes.SERIAL_READ_ALARM:
+                alarm_status, high_temp_value, low_temp_value, high_hum_value, low_hum_value, high_pre_value, low_pre_value \
+                    = \
+                    response['data'].split(' ')
+
+                if alarm_status == '1':
+                    self.checkBox_temp_alarm_status.setChecked(True)
+                    self.lineEdit_high_temp.setText(high_temp_value)
+                    self.lineEdit_low_temp.setText(low_temp_value)
+
+                    if self.chk_dev_id == 'CSL-H2 T0.2':
+                        self.lineEdit_high_hum.setText(high_hum_value)
+                        self.lineEdit_low_hum.setText(low_hum_value)
+
+                    if self.chk_dev_id == 'CSL-HX PY TZ':
+                        self.lineEdit_high_pressure.setText(high_pre_value)
+                        self.lineEdit_low_pressure.setText(low_pre_value)
                 else:
-                    self.label_battery_level_low_signal.setText("Battery low, please replace (CR2450)")
-                self.label_battery_level_low_signal.setStyleSheet("color: red; ")
-            else:
-                self.label_battery_level_low_signal.setStyleSheet("")
-                self.label_battery_level_low_signal.setText("")
-                #
-                # if battery_percentage>100:
-                #     battery_percentage = 100
-                # self.label_battery_level_low_signal.setText(', ' + str(int(battery_percentage)) + '% '
-                #                                                                                            'remaining')
+                    self.checkBox_temp_alarm_status.setChecked(False)
 
-            datetime_str = date + ' ' + time
-            try:
-                datetime_object = datetime.datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
-                utils.CURRENT_DEVICE_TIME_RESPONSE = datetime_object
-                self.update_device_time()
-                if self.label_device_time.text() != self.label_system_time.text():
-                    self.btn_sync_device_system_time.setStyleSheet("background-color: rgb(237, 65, 65);\n""color: "
-                                                                   "rgb(255, 255, 255);")
+            elif response['task_type'] == TaskTypes.SERIAL_WRITE_ALARM:
+                self.show_alert_dialog("Write alarm successful!")
+
+            elif response['task_type'] == TaskTypes.SERIAL_READ_LOG:
+                utils.READ_LOG_RESPONSE = response['data']
+                self.interval, start_type, start_time, start_date, stop_type, stop_time, stop_date = response[
+                    'data'].split()
+                self.lineEdit_logging_interval.setText(self.interval)
+                self.label_logger_interval_show.setText("Logging interval is currently set to " + self.interval + " minute(s)")
+                self.update_logging_start_stop(start_type, start_time, start_date, stop_type, stop_time, stop_date)
+
+            elif response['task_type'] == TaskTypes.SERIAL_WRITE_DAYLIGHT:
+                if self.checkBox_dst.isChecked():
+                    self.show_alert_dialog("Daylight saving turned on successfully!")
                 else:
-                    self.btn_sync_device_system_time.setStyleSheet(
-                        "background-color: rgb(34, 232, 28);\n""color: rgb(0, 0, 0);")
+                    self.show_alert_dialog("Daylight saving turned off successfully!")
 
-            except ValueError:
-                self.show_alert_dialog("Logger timekeeping failed.\nPlease change/insert battery before syncing time")
-
-        elif response['task_type'] == TaskTypes.SERIAL_RTC_ERROR:
-            self.label_device_id.setText("Connected")
-            self.reconnect_button.setText("Reconnect")
-            self.reconnect_button.show()
-            self.connect_buttons()
-            self.waiting_window_end()
-            if response['data'] == 'yes':
-                self.show_alert_dialog("Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
-
-        elif response['task_type'] == TaskTypes.SERIAL_DEV_NAME:
-            self.lineEdit_device_name.setText(response['data'])
-
-        elif response['task_type'] == TaskTypes.SERIAL_READ_CONST:
-            utils.READ_CONST_RESPONSE = response['data']
-            # print(utils.READ_CONST_RESPONSE)
-
-        elif response['task_type'] == TaskTypes.SERIAL_READ_LOGGER_DATA:
-            # self.msg_box_read_log_data.close()
-            # self.msg_box_read_log_data.close()
-
-            self.p.progressBar.setValue(80)
-            self.p.setWindowTitle('Generating graph')
-            logger_plot_window = LoggerPlotWindow(self)
-            try:
-                if response['data']:
-                    logger_plot_window.initialize_and_show(1, response['data'])
-                    self.p.progressBar.setValue(100)
-                    self.p.close()
+            elif response['task_type'] == TaskTypes.SERIAL_READ_DAYLIGHT:
+                if response['data'] == '1':
+                    self.checkBox_dst.setChecked(True)
                 else:
-                    self.p.close()
-                    msg_box = QMessageBox(self)
-                    msg_box.setIcon(QMessageBox.Information)
-                    msg_box.setText("Logger has no data")
-                    msg_box.setWindowTitle("Message")
-                    msg_box.setStandardButtons(QMessageBox.Ok)
-                    msg_box.exec_()
-            except Exception as er:
-                self.show_error_dialog("Error! Data corrupted\nPlease erase all logged data")
-                reply = QMessageBox.question(self, 'Recovery', "Do you want to save the corrupted data to a text file?", QMessageBox.Yes, QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    qfd = QFileDialog(self)
-                    options = qfd.Options()
-                    options |= qfd.DontUseNativeDialog
-                    file_dir = qfd.getExistingDirectory(self, "Choose a folder", "", qfd.ShowDirsOnly)
-                    if file_dir:
-                        full_file_path = os.path.join(file_dir, 'Recovery_CSL_Series_Logger.txt')
-                        f = open(full_file_path, "w+")
-                        f.write("Data Format: \nLogging start time: Hour("
-                                "24hour):Minute:Second<space>Date/Month/Year<space>Data points<space>Interval, "
-                                "\nRecordings: \'Temperature<space>Humidity<space>Pressure\'\n")
-                        f.write(str(response['data']))
-                self.p.close()
-                print(er)
+                    self.checkBox_dst.setChecked(False)
+            # elif response['task_type'] == TaskTypes.SERIAL_REAL_TIME:
+            #     self.realtime = response['data']
 
-        elif response['task_type'] == TaskTypes.SERIAL_RENAME_DEV_NAME:
-            self.show_alert_dialog("Device rename successful!")
+            elif response['task_type'] == TaskTypes.SERIAL_DEV_ID:
 
-        elif response['task_type'] == TaskTypes.SERIAL_WRITE_TIME:
-            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_TIME_BATTERY, self.task_done_callback))
-            self.show_alert_dialog("Write time successful!")
+                self.lbl_device_id.setText(response['data'])
+                self.label_device_id.setText("Logger Found, Connecting...")
+                self.label_device_id.setStyleSheet("color:green")
+                self.chk_dev_id = response['data']
 
-        elif response['task_type'] == TaskTypes.SERIAL_WRITE_LOG:
-            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOG, self.task_done_callback))
-            self.show_alert_dialog("Logging interval set successfully!")
-
-        elif response['task_type'] == TaskTypes.SERIAL_ERASE:
-            self.show_alert_dialog("Erase successful")
-
-        elif response['task_type'] == TaskTypes.SERIAL_WRITE_LOG_START_STOP:
-            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOG, self.task_done_callback))
-            self.show_alert_dialog("Logging start stop time setting successful!")
-
-
-        elif response['task_type'] == TaskTypes.SERIAL_READ_ALARM:
-            alarm_status, high_temp_value, low_temp_value, high_hum_value, low_hum_value, high_pre_value, low_pre_value \
-                = \
-                response['data'].split(' ')
-
-            if alarm_status == '1':
-                self.checkBox_temp_alarm_status.setChecked(True)
-                self.lineEdit_high_temp.setText(high_temp_value)
-                self.lineEdit_low_temp.setText(low_temp_value)
+                if self.chk_dev_id == 'CSL-T0.5':
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_CONST, self.task_done_callback))
+                    self.label_device_type.setText('Temperature Logger')
+                    self.lineEdit_high_hum.setDisabled(True)
+                    self.lineEdit_low_hum.setDisabled(True)
+                    self.lineEdit_high_pressure.setDisabled(True)
+                    self.lineEdit_low_pressure.setDisabled(True)
 
                 if self.chk_dev_id == 'CSL-H2 T0.2':
-                    self.lineEdit_high_hum.setText(high_hum_value)
-                    self.lineEdit_low_hum.setText(low_hum_value)
+                    self.label_device_type.setText('Temperature and Relative Humidity Logger')
+                    self.lineEdit_high_pressure.setDisabled(True)
+                    self.lineEdit_low_pressure.setDisabled(True)
 
-                if self.chk_dev_id == 'CSL-HX PY TZ':
-                    self.lineEdit_high_pressure.setText(high_pre_value)
-                    self.lineEdit_low_pressure.setText(low_pre_value)
-            else:
-                self.checkBox_temp_alarm_status.setChecked(False)
-
-        elif response['task_type'] == TaskTypes.SERIAL_WRITE_ALARM:
-            self.show_alert_dialog("Write alarm successful!")
-
-        elif response['task_type'] == TaskTypes.SERIAL_READ_LOG:
-            utils.READ_LOG_RESPONSE = response['data']
-            self.interval, start_type, start_time, start_date, stop_type, stop_time, stop_date = response[
-                'data'].split()
-            self.lineEdit_logging_interval.setText(self.interval)
-            self.label_logger_interval_show.setText("Logging interval is currently set to " + self.interval + " minute(s)")
-            self.update_logging_start_stop(start_type, start_time, start_date, stop_type, stop_time, stop_date)
-
-        elif response['task_type'] == TaskTypes.SERIAL_WRITE_DAYLIGHT:
-            if self.checkBox_dst.isChecked():
-                self.show_alert_dialog("Daylight saving turned on successfully!")
-            else:
-                self.show_alert_dialog("Daylight saving turned off successfully!")
-
-        elif response['task_type'] == TaskTypes.SERIAL_READ_DAYLIGHT:
-            if response['data'] == '1':
-                self.checkBox_dst.setChecked(True)
-            else:
-                self.checkBox_dst.setChecked(False)
-        # elif response['task_type'] == TaskTypes.SERIAL_REAL_TIME:
-        #     self.realtime = response['data']
-
-        elif response['task_type'] == TaskTypes.SERIAL_DEV_ID:
-
-            self.lbl_device_id.setText(response['data'])
-            self.label_device_id.setText("Logger Found, Connecting...")
-            self.label_device_id.setStyleSheet("color:green")
-            self.chk_dev_id = response['data']
-
-            if self.chk_dev_id == 'CSL-T0.5':
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_CONST, self.task_done_callback))
-                self.label_device_type.setText('Temperature Logger')
-                self.lineEdit_high_hum.setDisabled(True)
-                self.lineEdit_low_hum.setDisabled(True)
-                self.lineEdit_high_pressure.setDisabled(True)
-                self.lineEdit_low_pressure.setDisabled(True)
-
-            if self.chk_dev_id == 'CSL-H2 T0.2':
-                self.label_device_type.setText('Temperature and Relative Humidity Logger')
-                self.lineEdit_high_pressure.setDisabled(True)
-                self.lineEdit_low_pressure.setDisabled(True)
-
-
+        except Exception as response_error:
+            print(response_error)
+            TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
         # elif response['task_type'] == TaskTypes.SERIAL_REAL_TIME:
         #     print(response)
@@ -693,7 +793,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 dt = QtCore.QDateTime(QDate(dtf.year, dtf.month, dtf.day), QTime(int(hour), int(minutes), int(seconds)))
                 self.dateTimeEdit_logging_start.setDateTime(dt)
             except:
-                self.show_error_dialog("error in start option")
+                self.show_error_dialog("Error in start option")
 
         if stop_type == '0':
             self.comboBox_logging_stop.setCurrentIndex(0)
@@ -705,7 +805,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 dt = QtCore.QDateTime(QDate(dtf.year, dtf.month, dtf.day), QTime(int(hour), int(minutes), int(seconds)))
                 self.dateTimeEdit_logging_stop.setDateTime(dt)
             except:
-                self.show_error_dialog("error in stop option")
+                self.show_error_dialog("Error in stop option")
 
     def set_logging_interval(self):
         interval_value = self.lineEdit_logging_interval.text()
@@ -752,9 +852,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return False
 
     def reconnect(self):
-        self.clear_labels()
-        self.disconnect_buttons()
-        TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
+        pass
+        # self.disconnect_logger()
+        # TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
     def clear_labels(self):
         self.label_device_id.setText("")
@@ -773,7 +873,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lineEdit_low_hum.setText("")
         self.lineEdit_low_pressure.setText("")
         self.lineEdit_high_pressure.setText("")
-        self.reconnect_button.hide()
+        # self.reconnect_button.hide()
         self.btn_sync_device_system_time.setStyleSheet("")
 
     def show_alert_dialog(self, msg):
@@ -795,22 +895,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         msg_box.exec_()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', "Do you want to quit?", QMessageBox.Yes, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            self.queue_timer.stop()
-            self.miscellaneous_timer.stop()
-            self.device_connectivity_status_timer.stop()
-            self.reading_timer.stop()
-            TaskConsumer().clear_task_queue()
-            DataReader().close()
+        if self.logger_connected == False or self.logger_connected is None:
+            reply = QMessageBox.question(self, 'Exit CredoWare', "Do you want to quit?", QMessageBox.Yes, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                self.queue_timer.stop()
+                self.miscellaneous_timer.stop()
+                self.device_connectivity_status_timer.stop()
+                self.reading_timer.stop()
+                TaskConsumer().clear_task_queue()
+                DataReader().close()
 
-            # self.real_time_window.close()
-            self.about_window.close()
-            self.device_selecton.close()
+                # self.real_time_window.close()
+                self.about_window.close()
+                self.device_selecton.close()
 
-            event.accept()
+                event.accept()
+            else:
+                event.ignore()
         else:
-            event.ignore()
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Critical)
+            msg_box.setText("Please disconnect logger before closing")
+            msg_box.setWindowTitle("Exit CredoWare")
+            ok_btn = msg_box.addButton('OK', QMessageBox.RejectRole)
+            exit_btn = msg_box.addButton('Close anyway', QMessageBox.ActionRole)
+            exit_btn.setStyleSheet('padding:5px;')
+            exit_btn.setMinimumWidth(100)
+            exit_btn.setMinimumHeight(15)
+            ok_btn.setStyleSheet('padding:5px;')
+            ok_btn.setMinimumHeight(15)
+            ok_btn.setMinimumWidth(100)
+            msg_box.exec_()
+            if msg_box.clickedButton() == exit_btn:
+                event.accept()
+            else:
+                event.ignore()
 
     def waiting_window(self):
         try:

@@ -1348,7 +1348,7 @@
      </spacer>
     </item>
     <item row="1" column="3">
-     <widget class="QPushButton" name="reconnect_button">
+     <widget class="QPushButton" name="connect_button">
       <property name="toolTip">
        <string>Reestablish connection</string>
       </property>
@@ -1359,7 +1359,7 @@
        <string>sdfj</string>
       </property>
       <property name="text">
-       <string>Reconnect</string>
+       <string>Connect</string>
       </property>
      </widget>
     </item>

@@ -49,18 +49,24 @@ class DataReader(metaclass=SingletonMeta):
         from task_consumer import TaskTypes
         # print(task_type)
         self.ser.write(task_type.encode('ascii'))
-        if task_type == TaskTypes.SERIAL_ERASE_CHIP:
+        if task_type == TaskTypes.SERIAL_ERASE_CHIP\
+                or task_type == TaskTypes.SERIAL_CONNECT_LOGGER\
+                or task_type == TaskTypes.SERIAL_DISCONNECT_LOGGER:
             self.ser.timeout = None
         else:
-            self.ser.timeout = 3
+            self.ser.timeout = 10
             pass
         data_lst = []
+        time_before_loop = time.time()
         while True:
+            time_of_loop = time.time()
+            if time_of_loop - time_before_loop > 10:
+                break
             if not self.is_port_open():
                 break
             try:
                 data = self.ser.readline().decode('utf-8').rstrip('\r\n')
-                print(data)
+                # print(data)
             except Exception as er:
                 print(er)
                 pass
@@ -95,6 +101,7 @@ class DataReader(metaclass=SingletonMeta):
         self.ser.write(new_data.encode('ascii'))
         while True:
             data = self.ser.readline().decode('utf-8').rstrip('\r\n')
+            print(data)
             if data == "ready":
                 self.ser.reset_input_buffer()
                 self.ser.reset_output_buffer()

@@ -13,7 +13,8 @@ class TaskTypes:
     SERIAL_DEV_ID = "read_dev_ID"
     SERIAL_RENAME_DEV_NAME = 'write_dev_name'
     SERIAL_DEV_NAME = 'read_dev_name'
-    SERIAL_TIME_BATTERY = 'read_time_batt'
+    SERIAL_TIME = 'read_time'
+    SERIAL_BATTERY = 'read_battery'
     SERIAL_READ_LOGGER_DATA: str = 'read'
     SERIAL_READ_LOG = 'read_log'
     SERIAL_READ_CONST = 'read_const'
@@ -40,9 +41,11 @@ class TaskTypes:
     SERIAL_READ_FLOAT = 'read_float'
     SERIAL_WRITE_BYTE = 'write_byte'
     SERIAL_READ_BYTE = 'read_byte'
-    SERIAL_RTC_ERROR = 'read_rtc_error'
-    SERIAL_WRITE_LED_STATUS = 'write_led_status'
-    SERIAL_WRITE_LED_BRIGHTNESS = 'write_led_brightness'
+    SERIAL_RTC_ERROR = 'rtc_error'
+    SERIAL_WRITE_LED_STATUS = 'led_stat'
+    SERIAL_WRITE_LED_BRIGHTNESS = 'led_bright'
+    SERIAL_CONNECT_LOGGER = 'con'
+    SERIAL_DISCONNECT_LOGGER = 'discon'
 
 class TaskStatus:
     WAITING = 0
@@ -101,7 +104,8 @@ def do_task(task_type, new_data):
         return 'OK'
 
     elif task_type == TaskTypes.SERIAL_DEV_ID or task_type == TaskTypes.SERIAL_DEV_NAME \
-            or task_type == TaskTypes.SERIAL_TIME_BATTERY \
+            or task_type == TaskTypes.SERIAL_TIME \
+            or task_type == TaskTypes.SERIAL_BATTERY \
             or task_type == TaskTypes.SERIAL_RTC_ERROR \
             or task_type == TaskTypes.SERIAL_READ_DAYLIGHT \
             or task_type == TaskTypes.SERIAL_READ_LOG \
@@ -112,7 +116,9 @@ def do_task(task_type, new_data):
             or task_type == TaskTypes.SERIAL_REAL_TIME \
             or task_type == TaskTypes.SERIAL_READ_ERROR\
             or task_type == TaskTypes.SERIAL_ERASE\
-            or task_type == TaskTypes.SERIAL_ERASE_CHIP:
+            or task_type == TaskTypes.SERIAL_ERASE_CHIP\
+            or task_type == TaskTypes.SERIAL_CONNECT_LOGGER\
+            or task_type == TaskTypes.SERIAL_DISCONNECT_LOGGER:
 
         if not dr.is_port_open():
             raise Exception("Device port is closed.")
