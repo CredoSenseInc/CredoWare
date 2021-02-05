@@ -24,6 +24,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
         self.btn_reading_start.clicked.connect(self.start_pressed)
         self.btn_reading_stop.clicked.connect(self.stop_pressed)
+
         self.btn_reading_stop.setDisabled(True)
         self.reading_timer = QTimer()
         self.reading_timer.setInterval(2000)
@@ -32,10 +33,13 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         self.temperature_data = []
         self.humidity_data = []
         self.pressure_data = []
+
         self.write_yes = False
         self.savingText.hide()
         self.savingText.setStyleSheet('color:red;')
         self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+
+        self.chk_dev_id = ""
 
         self.temp_lcd.display(0)
         self.hum_lcd.display(0)
@@ -49,21 +53,29 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         self.hum_lcd.display(0)
         self.pre_lcd.display(0)
 
+        x = DataReader()
+        self.chk_dev_id = x.read_data("read_dev_ID")
+
         msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText("Do you want to save incoming real-time data?")
         msg_box.setWindowTitle("Message")
+
         save = msg_box.addButton('Yes', QMessageBox.YesRole)
+
         dont_save = msg_box.addButton('No', QMessageBox.NoRole)
         msg_box.exec_()
+
         if msg_box.clickedButton() == save:
             self.write_yes = True
             self.savingText.show()
             # self.choose_directory()
         elif msg_box.clickedButton() == dont_save:
             pass
+
         self.btn_reading_start.setDisabled(True)
         self.btn_reading_stop.setDisabled(False)
+
         self.reading_timer.setInterval(self.spinBox.value()*1000)
         self.spinBox.setDisabled(True)
         self.init_queue_real_time_thread()
@@ -110,8 +122,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         MyRealTimeWindow.temp = response['data']
         temp = MyRealTimeWindow.temp
         # print(temp)
-        x = DataReader()
-        self.chk_dev_id = x.read_data("read_dev_ID")
+
 
         try:
             if self.chk_dev_id == 'CSL-T0.5':
@@ -123,15 +134,6 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                 self.temperature_data.append(tmp)
 
             if self.chk_dev_id == 'CSL-H2 T0.2':
-                # msg_box = QMessageBox(self)
-                # msg_box.setIcon(QMessageBox.Information)
-                # msg_box.setText("This model currently does not support real time data steaming mode")
-                # self.stop_queue_real_time_thread()
-                # TaskConsumer().clear_task_queue()
-                # self.hide()
-                # msg_box.setWindowTitle("Message")
-                # msg_box.setStandardButtons(QMessageBox.Ok)
-                # msg_box.exec_()
 
                 tmp, hum = temp.split()
                 # print(tmp)
@@ -145,6 +147,23 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                     self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
                     self.temperature_data.append(tmp)
                     self.humidity_data.append(hum)
+
+            if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+
+                tmp, hum, pre = temp.split()
+                # print(tmp)
+                # print(hum)
+                if float(hum) == 100.00:
+                    print('read again')
+                    self.get_real_time_reading()
+                self.temp_lcd.display(tmp)
+                self.hum_lcd.display(hum)
+                self.pre_lcd.display(pre)
+                self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
+                self.temperature_data.append(tmp)
+                self.humidity_data.append(hum)
+                self.pressure_data.append(pre)
+
         except Exception as er:
             print(er)
             pass

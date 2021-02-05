@@ -25,7 +25,6 @@ import rollbar
 
 rollbar.init('e3a546db962f43968a3956e2e201e320')
 
-
 # sentry_sdk.init("https://e6fdc5ed07fb4248aaf35c1deca4ec8b@sentry.io/2500238")
 
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +46,7 @@ def open_file(filename):
             subprocess.call([opener, filename])
     except:
         pass
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -106,6 +106,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.init_timers()
 
     """code segment for: port select window"""
+
     # def initialize_main_window(self):
     #     self.port_select_window.hide()
     #     self.show()
@@ -151,7 +152,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionStart_real_time_data_streaming.triggered.connect(lambda: self.start_reading_realtime_data())
         self.actionSync_logger_to_computer_time.triggered.connect(lambda: self.sync_device_and_system_time())
 
-
         self.btn_read_logger_data.clicked.connect(self.start_reading_logger_data)
         self.btn_real_time_data.clicked.connect(self.start_reading_realtime_data)
         self.btn_set_logging_interval.clicked.connect(self.set_logging_interval)
@@ -173,6 +173,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def led_off(self):
         TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LED_STATUS, self.task_done_callback, "0,0,0"))
+
     def led_on(self):
         TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LED_STATUS, self.task_done_callback, "1,1,0"))
 
@@ -267,8 +268,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.after_device_not_found_change()
 
-
-
     def after_device_not_found_change(self):
         self.queue_timer.stop()
         self.miscellaneous_timer.stop()
@@ -288,7 +287,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.label_device_time.setText("")
         self.lineEdit_device_name.setText("")
         self.label_logger_interval_show.setText("")
-
 
     def rename_device(self):
 
@@ -346,7 +344,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 stop_td = self.dateTimeEdit_logging_stop.dateTime().toString("h:m:s d/M/yy")
                 w_str = " ".join([str(start_status), start_td, str(stop_status), stop_td])
                 print(w_str)
-                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback, str(w_str)))
+                TaskConsumer().insert_task(
+                    Task(TaskTypes.SERIAL_WRITE_LOG_START_STOP, self.task_done_callback, str(w_str)))
 
     def set_alarm(self):
         high_temp = 85
@@ -362,8 +361,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     low_temp = int(self.lineEdit_low_temp.text())
                     high_hum = int(self.lineEdit_high_hum.text())
                     low_hum = int(self.lineEdit_low_hum.text())
-                    self.lineEdit_high_pressure.setDisabled(True)
-                    self.lineEdit_low_pressure.setDisabled(True)
+                    # self.lineEdit_high_pressure.setDisabled(True)
+                    # self.lineEdit_low_pressure.setDisabled(True)
 
                     if low_temp > high_temp:
                         self.waiting_window_end()
@@ -391,7 +390,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.show_alert_dialog("Minimum value 0.")
                         return
 
-                if self.chk_dev_id == 'CSL-HX PY TZ':
+                if self.chk_dev_id == 'CSL-H2 P1 T0.5':
                     high_temp = int(self.lineEdit_high_temp.text())
                     low_temp = int(self.lineEdit_low_temp.text())
                     high_hum = int(self.lineEdit_high_hum.text())
@@ -432,10 +431,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if self.chk_dev_id == 'CSL-T0.5':
                     high_temp = int(self.lineEdit_high_temp.text())
                     low_temp = int(self.lineEdit_low_temp.text())
-                    self.lineEdit_high_hum.setDisabled(True)
-                    self.lineEdit_low_hum.setDisabled(True)
-                    self.lineEdit_high_pressure.setDisabled(True)
-                    self.lineEdit_low_pressure.setDisabled(True)
+                    # self.lineEdit_high_hum.setDisabled(True)
+                    # self.lineEdit_low_hum.setDisabled(True)
+                    # self.lineEdit_high_pressure.setDisabled(True)
+                    # self.lineEdit_low_pressure.setDisabled(True)
 
                     if low_temp > high_temp:
                         self.show_alert_dialog("High temperature should be greater than low.")
@@ -529,7 +528,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if data == 'yes' or data == 'connected':
                     self.logger_connected = True
                     self.connect_button.setText("Disconnect")
-                    self.connect_button.clicked.disconnect()
+
+                    try:
+                        self.connect_button.clicked.disconnect()
+                    except Exception as e:
+                        print(e)
                     self.connect_button.clicked.connect(self.disconnect_logger)
                     self.connect_button.setDisabled(False)
 
@@ -586,23 +589,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif data == 'found':
                     self.waiting_window()
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_ID, self.task_done_callback))
+
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_BATTERY, self.task_done_callback))
+
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_TIME, self.task_done_callback))
+
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_NAME, self.task_done_callback))
+
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOG, self.task_done_callback))
 
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_DAYLIGHT, self.task_done_callback))
+
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_ALARM, self.task_done_callback))
-                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
+                    # TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RTC_ERROR, self.task_done_callback))
 
             elif response['task_type'] == TaskTypes.SERIAL_TIME:
                 time, date = response['data'].strip().split()
-                    #
-                    # if battery_percentage>100:
-                    #     battery_percentage = 100
-                    # self.label_battery_level_low_signal.setText(', ' + str(int(battery_percentage)) + '% '
-                    #                                                                                            'remaining')
+                #
+                # if battery_percentage>100:
+                #     battery_percentage = 100
+                # self.label_battery_level_low_signal.setText(', ' + str(int(battery_percentage)) + '% '
+                #                                                                                            'remaining')
 
                 datetime_str = date + ' ' + time
                 try:
@@ -617,7 +625,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             "background-color: rgb(34, 232, 28);\n""color: rgb(0, 0, 0);")
 
                 except ValueError:
-                    self.show_alert_dialog("Logger timekeeping failed.\nPlease change/insert battery before syncing time")
+                    self.show_alert_dialog(
+                        "Logger timekeeping failed.\nPlease change/insert battery before syncing time")
 
             elif response['task_type'] == TaskTypes.SERIAL_BATTERY:
                 battery = response['data']
@@ -642,7 +651,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.connect_buttons()
                 self.waiting_window_end()
                 if response['data'] == 'yes':
-                    self.show_alert_dialog("Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
+                    self.show_alert_dialog(
+                        "Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
 
             elif response['task_type'] == TaskTypes.SERIAL_DEV_NAME:
                 self.lineEdit_device_name.setText(response['data'])
@@ -673,7 +683,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         msg_box.exec_()
                 except Exception as er:
                     self.show_error_dialog("Error! Data corrupted\nPlease erase all logged data")
-                    reply = QMessageBox.question(self, 'Recovery', "Do you want to save the corrupted data to a text file?", QMessageBox.Yes, QMessageBox.No)
+                    reply = QMessageBox.question(self, 'Recovery',
+                                                 "Do you want to save the corrupted data to a text file?",
+                                                 QMessageBox.Yes, QMessageBox.No)
                     if reply == QMessageBox.Yes:
                         qfd = QFileDialog(self)
                         options = qfd.Options()
@@ -722,7 +734,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.lineEdit_high_hum.setText(high_hum_value)
                         self.lineEdit_low_hum.setText(low_hum_value)
 
-                    if self.chk_dev_id == 'CSL-HX PY TZ':
+                    if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+                        self.lineEdit_high_hum.setText(high_hum_value)
+                        self.lineEdit_low_hum.setText(low_hum_value)
                         self.lineEdit_high_pressure.setText(high_pre_value)
                         self.lineEdit_low_pressure.setText(low_pre_value)
                 else:
@@ -736,7 +750,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.interval, start_type, start_time, start_date, stop_type, stop_time, stop_date = response[
                     'data'].split()
                 self.lineEdit_logging_interval.setText(self.interval)
-                self.label_logger_interval_show.setText("Logging interval is currently set to " + self.interval + " minute(s)")
+                self.label_logger_interval_show.setText(
+                    "Logging interval is currently set to " + self.interval + " minute(s)")
                 self.update_logging_start_stop(start_type, start_time, start_date, stop_type, stop_time, stop_date)
 
             elif response['task_type'] == TaskTypes.SERIAL_WRITE_DAYLIGHT:
@@ -763,6 +778,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if self.chk_dev_id == 'CSL-T0.5':
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_CONST, self.task_done_callback))
                     self.label_device_type.setText('Temperature Logger')
+                    self.lineEdit_high_temp.setDisabled(False)
+                    self.lineEdit_low_temp.setDisabled(False)
                     self.lineEdit_high_hum.setDisabled(True)
                     self.lineEdit_low_hum.setDisabled(True)
                     self.lineEdit_high_pressure.setDisabled(True)
@@ -770,8 +787,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
                 if self.chk_dev_id == 'CSL-H2 T0.2':
                     self.label_device_type.setText('Temperature and Relative Humidity Logger')
+                    self.lineEdit_high_temp.setDisabled(False)
+                    self.lineEdit_low_temp.setDisabled(False)
+                    self.lineEdit_high_hum.setDisabled(False)
+                    self.lineEdit_low_hum.setDisabled(False)
                     self.lineEdit_high_pressure.setDisabled(True)
                     self.lineEdit_low_pressure.setDisabled(True)
+
+                if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+                    self.label_device_type.setText('Temperature, Relative Humidity, and Barometric Pressure Logger')
+                    self.lineEdit_high_temp.setDisabled(False)
+                    self.lineEdit_low_temp.setDisabled(False)
+                    self.lineEdit_high_hum.setDisabled(False)
+                    self.lineEdit_low_hum.setDisabled(False)
+                    self.lineEdit_high_pressure.setDisabled(False)
+                    self.lineEdit_low_pressure.setDisabled(False)
+
 
         except Exception as response_error:
             print(response_error)
@@ -779,7 +810,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # elif response['task_type'] == TaskTypes.SERIAL_REAL_TIME:
         #     print(response)
-
 
     def update_logging_start_stop(self, start_type, start_time, start_date, stop_type, stop_time, stop_date):
 
@@ -896,7 +926,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closeEvent(self, event):
         if self.logger_connected == False or self.logger_connected is None:
-            reply = QMessageBox.question(self, 'Exit CredoWare', "Do you want to quit?", QMessageBox.Yes, QMessageBox.No)
+            reply = QMessageBox.question(self, 'Exit CredoWare', "Do you want to quit?", QMessageBox.Yes,
+                                         QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.queue_timer.stop()
                 self.miscellaneous_timer.stop()
@@ -960,15 +991,15 @@ if __name__ == '__main__':
             pass
         window = MainWindow()
         if (height < 1000):
-            if width<1000:
+            if width < 1000:
                 window.resize(width / 2, height - 150)
-                window.move(int(width / 2 - width / 2 / 2), int(height / 2 - (height - 150) / 2)-(width/100))
+                window.move(int(width / 2 - width / 2 / 2), int(height / 2 - (height - 150) / 2) - (width / 100))
             else:
                 window.resize(600, height - 150)
                 window.move(int(width / 2 - 600 / 2), int(height / 2 - (height - 150) / 2) - (width / 100))
         else:
             window.resize(w, h)
-            window.move(int(width / 2 - w / 2), int((height / 2 - h / 2)-(width/100)))
+            window.move(int(width / 2 - w / 2), int((height / 2 - h / 2) - (width / 100)))
         app.exec_()
 
     except Exception as er:

@@ -1,7 +1,7 @@
 import PyInstaller.__main__
 
 PyInstaller.__main__.run([
-    'cs_reader.py',
+    'credoware.py',
     '--onedir',
     '--windowed',
     '--icon=icon.ico',

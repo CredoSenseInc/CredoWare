@@ -55,33 +55,36 @@ class DataReader(metaclass=SingletonMeta):
             self.ser.timeout = None
         else:
             self.ser.timeout = 10
-            pass
+
         data_lst = []
         time_before_loop = time.time()
         while True:
             time_of_loop = time.time()
-            if time_of_loop - time_before_loop > 10:
+            if time_of_loop - time_before_loop > 20:
                 break
             if not self.is_port_open():
                 break
             try:
                 data = self.ser.readline().decode('utf-8').rstrip('\r\n')
-                # print(data)
+                print(data)
+                if data == "ready":
+                    self.ser.reset_input_buffer()
+                    self.ser.reset_output_buffer()
+                    print("___end of data___")
+                    break
+                else:
+                    if not (task_type == TaskTypes.SERIAL_ERASE):
+                        data_lst.append(data)
             except Exception as er:
                 print(er)
                 pass
-            if data == "ready":
-                self.ser.reset_input_buffer()
-                self.ser.reset_output_buffer()
-                break
-            else:
-                if not (task_type == TaskTypes.SERIAL_ERASE):
-                    data_lst.append(data)
+
 
         if task_type == TaskTypes.SERIAL_READ_LOGGER_DATA:
             return data_lst
         if not (task_type == TaskTypes.SERIAL_ERASE):
             try:
+                print(data_lst)
                 return data_lst[0]
             except Exception as er:
                 print(er)

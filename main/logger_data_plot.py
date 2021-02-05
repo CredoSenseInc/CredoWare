@@ -127,7 +127,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             float_pressure_data.clear()
             alarm_data.clear()
 
-            if self.chk_dev_id == 'CSL-HX TY PZ':
+            if self.chk_dev_id == 'CSL-H2 P1 T0.2':
                 for i in range(0, len(self.temperature_data)):
                     float_temperature_data.insert(i, float(self.temperature_data[i]))
                     float_humidity_data.insert(i, float(self.humidity_data[i]))
@@ -210,20 +210,21 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                         writer.writerow(["Index", "Date-Time", "Temp", "RH", "Flag"])
 
                         try:
-                            temp_flags = self.flag_finder(value_list=self.temperature_data, max_deviation=1)
-                            hum_flags = self.flag_finder(value_list=self.humidity_data, max_deviation=1)
-
-                            flags = []
-                            for i in range(0, len(temp_flags)):
-                                if temp_flags[i] == 1 or hum_flags[i] == 1:
-                                    flags.insert(i, 1)
-                                else:
-                                    flags.insert(i, 0)
+                            # temp_flags = self.flag_finder(value_list=self.temperature_data, max_deviation=1)
+                            # hum_flags = self.flag_finder(value_list=self.humidity_data, max_deviation=1)
+                            # print(temp_flags)
+                            # print(hum_flags)
+                            # flags = []
+                            # for i in range(0, len(temp_flags)):
+                            #     if temp_flags[i] == 1 or hum_flags[i] == 1:
+                            #         flags.insert(i, 1)
+                            #     else:
+                            #         flags.insert(i, 0)
 
                             i = 0
-                            for x, y, z, f in zip(self.timedate_data, self.temperature_data, self.humidity_data, flags):
+                            for x, y, z in zip(self.timedate_data, self.temperature_data, self.humidity_data):
                                 i += 1
-                                writer.writerow([i, x, y, z, f])
+                                writer.writerow([i, x, y, z])
                         except Exception as er:
                             print(er)
                             pass
@@ -268,9 +269,11 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             except:
                 print('exception')
                 flag_list.insert(i, 0)
+
     """
         The part below is for z score evaluation for data flagging
     """
+
     # def flag_finder2(value_list):
     #     # mean_of_all_data =
     #     flag_list = []
@@ -338,6 +341,25 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                         self.temperature_data[i] = self.kelvin_to_celsius(float(self.temperature_data[i]))
 
                 self.temp_unit_now = 'C'
+
+            if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+
+                self.MplWidget.canvas.axes = self.MplWidget.canvas.figure.add_subplot(131)
+
+                self.float_temp_data = []
+
+                for i in range(0, len(self.temperature_data)):
+                    self.float_temp_data.append(float(self.temperature_data[i]))
+
+                self.MplWidget.canvas.axes.plot(self.timedate_data, self.float_temp_data, linestyle='solid',
+                                                label='_nolegend_', color='r', marker='.')
+                self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
+                self.MplWidget.canvas.axes.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
+                self.MplWidget.canvas.axes.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
+                self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
+                self.MplWidget.canvas.axes.set_ylabel('Temperature', fontweight='bold')
+                self.MplWidget.canvas.figure.autofmt_xdate()
+                # self.MplWidget.canvas.axes.legend()
 
             if self.chk_dev_id == 'CSL-H2 T0.2':
 
@@ -447,6 +469,98 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             self.graph_start_dt.setText(f" {self.start_dt}")
             self.graph_end_dt.setText(f" {self.end_dt}")
 
+            if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+
+                self.comboBox_temp_unit.show()
+                self.label.show()
+                self.MplWidget.canvas.axes = self.MplWidget.canvas.figure.add_subplot(131)
+                self.MplWidget.canvas.axes2 = self.MplWidget.canvas.figure.add_subplot(132)
+                self.MplWidget.canvas.axes3 = self.MplWidget.canvas.figure.add_subplot(133)
+
+                logger.info(self.timedate_data)
+
+                self.float_temp_data = []
+                self.float_hum_data = []
+                self.float_pre_data = []
+
+                self.modified_timedate_data = []
+
+                for i in range(0, len(self.temperature_data)):
+
+                    if self.temp_unit_now == 'C':
+                        if not (float(self.temperature_data[i]) >= 85 or
+                                float(self.temperature_data[i]) <= -40 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            if not (math.isnan(float(self.humidity_data[i])) or float(
+                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                if not (math.isnan(float(self.pressure_data[i])) or float(
+                                        self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
+                                    self.float_temp_data.append(float(self.temperature_data[i]))
+                                    self.modified_timedate_data.append((self.timedate_data[i]))
+                                    self.float_hum_data.append(float(self.humidity_data[i]))
+                                    self.float_pre_data.append(float(self.pressure_data[i]))
+                    elif self.temp_unit_now == 'F':
+
+                        if not (float(self.temperature_data[i]) >= 185 or
+                                float(self.temperature_data[i]) <= -40 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            if not (math.isnan(float(self.humidity_data[i])) or float(
+                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                if not (math.isnan(float(self.pressure_data[i])) or float(
+                                        self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
+                                    self.float_temp_data.append(float(self.temperature_data[i]))
+                                    self.modified_timedate_data.append((self.timedate_data[i]))
+                                    self.float_hum_data.append(float(self.humidity_data[i]))
+                                    self.float_pre_data.append(float(self.pressure_data[i]))
+
+                    elif self.temp_unit_now == 'K':
+
+                        if not (float(self.temperature_data[i]) >= 358.15 or
+                                float(self.temperature_data[i]) <= 233.15 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            if not (math.isnan(float(self.humidity_data[i])) or float(
+                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                if not (math.isnan(float(self.pressure_data[i])) or float(
+                                        self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
+                                    self.float_temp_data.append(float(self.temperature_data[i]))
+                                    self.modified_timedate_data.append((self.timedate_data[i]))
+                                    self.float_hum_data.append(float(self.humidity_data[i]))
+                                    self.float_pre_data.append(float(self.pressure_data[i]))
+
+                self.MplWidget.canvas.axes.plot(self.modified_timedate_data, self.float_temp_data, linestyle='solid',
+                                                label='_nolegend_', color='r', marker='.')
+                self.MplWidget.canvas.axes2.plot(self.modified_timedate_data, self.float_hum_data, linestyle='solid',
+                                                 label='_nolegend_', color='b', marker='.')
+                self.MplWidget.canvas.axes3.plot(self.modified_timedate_data, self.float_pre_data, linestyle='solid',
+                                                 label='_nolegend_', color='g', marker='.')
+
+                self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
+                self.MplWidget.canvas.axes2.xaxis.set_major_locator(mdates.AutoDateLocator())
+                self.MplWidget.canvas.axes3.xaxis.set_major_locator(mdates.AutoDateLocator())
+
+                self.MplWidget.canvas.axes.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
+                self.MplWidget.canvas.axes2.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
+                self.MplWidget.canvas.axes3.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
+                self.MplWidget.canvas.axes3.ticklabel_format(useOffset=False, axis='y')
+
+                self.MplWidget.canvas.axes.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
+                self.MplWidget.canvas.axes2.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
+                self.MplWidget.canvas.axes3.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
+
+                self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
+                self.MplWidget.canvas.axes.set_ylabel('Temperature', fontweight='bold')
+
+                self.MplWidget.canvas.axes2.set_xlabel('Date-Time', fontweight='bold')
+                self.MplWidget.canvas.axes2.set_ylabel('Relative Humidity (%)', fontweight='bold')
+
+                self.MplWidget.canvas.axes3.set_xlabel('Date-Time', fontweight='bold')
+                self.MplWidget.canvas.axes3.set_ylabel('Barometric Pressure (mBar)', fontweight='bold')
+
+                self.MplWidget.canvas.figure.autofmt_xdate()
+
+                # self.MplWidget.canvas.axes.legend()
+                # self.MplWidget.canvas.axes2.legend()
+
             if self.chk_dev_id == 'CSL-H2 T0.2':
 
                 self.comboBox_temp_unit.show()
@@ -460,29 +574,35 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 for i in range(0, len(self.temperature_data)):
 
                     if self.temp_unit_now == 'C':
-                        if not float(self.temperature_data[i]) <= 85 or \
-                                float(self.temperature_data[i]) >= -45 or \
-                                not math.isnan(float(self.temperature_data[i])):
-                            self.float_temp_data.append(float(self.temperature_data[i]))
-                            self.modified_timedate_data.append((self.timedate_data[i]))
+                        if not (float(self.temperature_data[i]) >= 85 or
+                                float(self.temperature_data[i]) <= -40 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            if not (math.isnan(float(self.humidity_data[i])) or float(
+                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
+                                self.float_hum_data.append(float(self.humidity_data[i]))
                     elif self.temp_unit_now == 'F':
-                        if not float(self.temperature_data[i]) <= 185 or \
-                                float(self.temperature_data[i]) >= -49 or \
-                                not math.isnan(float(self.temperature_data[i])):
-                            self.float_temp_data.append(float(self.temperature_data[i]))
-                            self.modified_timedate_data.append((self.timedate_data[i]))
-                    elif self.temp_unit_now == 'K':
-                        if not float(self.temperature_data[i]) <= 358.15 or \
-                                float(self.temperature_data[i]) >= 228.15 or \
-                                not math.isnan(float(self.temperature_data[i])):
-                            self.float_temp_data.append(float(self.temperature_data[i]))
-                            self.modified_timedate_data.append((self.timedate_data[i]))
 
-                for i in range(0, len(self.humidity_data)):
-                    if not math.isnan(float(self.humidity_data[i])) or \
-                            float(self.humidity_data[i]) < 100 or \
-                            float(self.humidity_data[i]) > 0:
-                        self.float_hum_data.append(float(self.humidity_data[i]))
+                        if not (float(self.temperature_data[i]) >= 185 or
+                                float(self.temperature_data[i]) <= -40 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            if not (math.isnan(float(self.humidity_data[i])) or float(
+                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
+                                self.float_hum_data.append(float(self.humidity_data[i]))
+
+                    elif self.temp_unit_now == 'K':
+
+                        if not (float(self.temperature_data[i]) >= 358.15 or
+                                float(self.temperature_data[i]) <= 233.15 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            if not (math.isnan(float(self.humidity_data[i])) or float(
+                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
+                                self.float_hum_data.append(float(self.humidity_data[i]))
 
                 self.MplWidget.canvas.axes.plot(self.modified_timedate_data, self.float_temp_data, linestyle='solid',
                                                 label='_nolegend_', color='r', marker='.')
@@ -517,22 +637,27 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.modified_timedate_data = []
 
                 for i in range(0, len(self.temperature_data)):
-                    if not math.isnan(float(self.temperature_data[i])):
-                        if self.temp_unit_now == 'C':
-                            if not float(self.temperature_data[i]) >= 85 or \
-                                    float(self.temperature_data[i]) <= -45:
-                                self.float_temp_data.append(float(self.temperature_data[i]))
-                                self.modified_timedate_data.append((self.timedate_data[i]))
-                        elif self.temp_unit_now == 'F':
-                            if not float(self.temperature_data[i]) >= 185 or \
-                                    float(self.temperature_data[i]) <= -49:
-                                self.float_temp_data.append(float(self.temperature_data[i]))
-                                self.modified_timedate_data.append((self.timedate_data[i]))
-                        elif self.temp_unit_now == 'K':
-                            if not float(self.temperature_data[i]) >= 358.15 or \
-                                    float(self.temperature_data[i]) <= 228.15:
-                                self.float_temp_data.append(float(self.temperature_data[i]))
-                                self.modified_timedate_data.append((self.timedate_data[i]))
+
+                    if self.temp_unit_now == 'C':
+                        if not (float(self.temperature_data[i]) >= 85 or
+                                float(self.temperature_data[i]) <= -40 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            self.float_temp_data.append(float(self.temperature_data[i]))
+                            self.modified_timedate_data.append((self.timedate_data[i]))
+
+                    elif self.temp_unit_now == 'F':
+                        if not (float(self.temperature_data[i]) >= 185 or
+                                float(self.temperature_data[i]) <= -40 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            self.float_temp_data.append(float(self.temperature_data[i]))
+                            self.modified_timedate_data.append((self.timedate_data[i]))
+
+                    elif self.temp_unit_now == 'K':
+                        if not (float(self.temperature_data[i]) >= 358.15 or
+                                float(self.temperature_data[i]) <= 233.15 or
+                                math.isnan(float(self.temperature_data[i]))):
+                            self.float_temp_data.append(float(self.temperature_data[i]))
+                            self.modified_timedate_data.append((self.timedate_data[i]))
 
                 self.MplWidget.canvas.axes = self.MplWidget.canvas.figure.add_subplot(111)
                 self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
