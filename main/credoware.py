@@ -374,7 +374,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         return
                     elif low_temp < -45:
                         self.waiting_window_end()
-                        self.show_alert_dialog("Low temperature should be greater than or equal to -45.")
+                        self.show_alert_dialog("Low temperature should be greater than or equal to -40.")
                         return
 
                     if low_hum > high_hum:
@@ -390,7 +390,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.show_alert_dialog("Minimum value 0.")
                         return
 
-                if self.chk_dev_id == 'CSL-H2 P1 T0.5':
+                if self.chk_dev_id == 'CSL-H2 P1 T0.2':
                     high_temp = int(self.lineEdit_high_temp.text())
                     low_temp = int(self.lineEdit_low_temp.text())
                     high_hum = int(self.lineEdit_high_hum.text())
@@ -415,7 +415,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.show_alert_dialog("Humidity can be maximum 100.")
                         return
                     elif low_hum < 0:
-                        self.show_alert_dialog("Minimum value 0.")
+                        self.show_alert_dialog("Low Humidity should be greater than or equal to 0.")
                         return
 
                     if low_pre > high_pre:
@@ -425,7 +425,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.show_alert_dialog("Pressure can be maximum 1200.")
                         return
                     elif low_pre < 600:
-                        self.show_alert_dialog("Minimum value 600.")
+                        self.show_alert_dialog("Low Pressure should be greater than or equal to 0.")
                         return
 
                 if self.chk_dev_id == 'CSL-T0.5':
@@ -736,7 +736,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.lineEdit_high_hum.setDisabled(True)
                     self.lineEdit_low_pressure.setDisabled(True)
                     self.lineEdit_high_pressure.setDisabled(True)
-                    self.label_alarm.setText("Alarm set. Temp High: " + high_temp_value + " ,Low: " + low_temp_value)
+                    self.label_alarm.setText("Alarm is enabled. Temp High: " + high_temp_value + " | Low: " + low_temp_value)
 
                     if self.chk_dev_id == 'CSL-H2 T0.2':
                         self.lineEdit_high_hum.setText(high_hum_value)
@@ -748,8 +748,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.lineEdit_high_hum.setDisabled(False)
                         self.lineEdit_low_pressure.setDisabled(True)
                         self.lineEdit_high_pressure.setDisabled(True)
-                        self.label_alarm.setText("Alarm set. Temp High: " + high_temp_value + " Low: " + low_temp_value \
-                                                 + " , RH High: " + high_hum_value + " Low: " + low_hum_value)
+                        self.label_alarm.setText("Alarm is enabled. Temp High: " + high_temp_value + " Low: " + low_temp_value \
+                                                 + " | RH High: " + high_hum_value + " Low: " + low_hum_value)
                     if self.chk_dev_id == 'CSL-H2 P1 T0.2':
                         self.lineEdit_high_hum.setText(high_hum_value)
                         self.lineEdit_low_hum.setText(low_hum_value)
@@ -762,9 +762,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.lineEdit_high_hum.setDisabled(False)
                         self.lineEdit_low_pressure.setDisabled(False)
                         self.lineEdit_high_pressure.setDisabled(False)
-                        self.label_alarm.setText("Alarm set. Temp High: " + high_temp_value + " Low: " + low_temp_value \
-                                                 + " , RH high: " + high_hum_value + " Low: " + low_hum_value \
-                                                 + " , BMP high: " + high_pre_value + " Low: " + low_pre_value)
+                        self.label_alarm.setText("Alarm is enabled. Temp High: " + high_temp_value + " Low: " + low_temp_value \
+                                                 + " | RH high: " + high_hum_value + " Low: " + low_hum_value \
+                                                 + " | BMP high: " + high_pre_value + " Low: " + low_pre_value)
                 else:
                     self.checkBox_temp_alarm_status.setChecked(False)
                     self.label_alarm.setText("Alarm is off")
