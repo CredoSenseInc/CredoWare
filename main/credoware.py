@@ -539,7 +539,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
                 else:
                     self.connect_button.setDisabled(True)
-                    self.label_device_id.setText('Searching for Logger')
+                    self.label_device_id.setText('Searching for a Logger')
                     self.label_device_id.setStyleSheet('color:orange;')
 
                     TaskConsumer().clear_task_queue()
@@ -730,19 +730,47 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.lineEdit_high_temp.setText(high_temp_value)
                     self.lineEdit_low_temp.setText(low_temp_value)
 
+                    self.lineEdit_low_temp.setDisabled(False)
+                    self.lineEdit_high_temp.setDisabled(False)
+                    self.lineEdit_low_hum.setDisabled(True)
+                    self.lineEdit_high_hum.setDisabled(True)
+                    self.lineEdit_low_pressure.setDisabled(True)
+                    self.lineEdit_high_pressure.setDisabled(True)
+                    self.label_alarm.setText("Alarm set. Temp High: " + high_temp_value + " ,Low: " + low_temp_value)
+
                     if self.chk_dev_id == 'CSL-H2 T0.2':
                         self.lineEdit_high_hum.setText(high_hum_value)
                         self.lineEdit_low_hum.setText(low_hum_value)
 
+                        self.lineEdit_low_temp.setDisabled(False)
+                        self.lineEdit_high_temp.setDisabled(False)
+                        self.lineEdit_low_hum.setDisabled(False)
+                        self.lineEdit_high_hum.setDisabled(False)
+                        self.lineEdit_low_pressure.setDisabled(True)
+                        self.lineEdit_high_pressure.setDisabled(True)
+                        self.label_alarm.setText("Alarm set. Temp High: " + high_temp_value + " Low: " + low_temp_value \
+                                                 + " , RH High: " + high_hum_value + " Low: " + low_hum_value)
                     if self.chk_dev_id == 'CSL-H2 P1 T0.2':
                         self.lineEdit_high_hum.setText(high_hum_value)
                         self.lineEdit_low_hum.setText(low_hum_value)
                         self.lineEdit_high_pressure.setText(high_pre_value)
                         self.lineEdit_low_pressure.setText(low_pre_value)
+
+                        self.lineEdit_low_temp.setDisabled(False)
+                        self.lineEdit_high_temp.setDisabled(False)
+                        self.lineEdit_low_hum.setDisabled(False)
+                        self.lineEdit_high_hum.setDisabled(False)
+                        self.lineEdit_low_pressure.setDisabled(False)
+                        self.lineEdit_high_pressure.setDisabled(False)
+                        self.label_alarm.setText("Alarm set. Temp High: " + high_temp_value + " Low: " + low_temp_value \
+                                                 + " , RH high: " + high_hum_value + " Low: " + low_hum_value \
+                                                 + " , BMP high: " + high_pre_value + " Low: " + low_pre_value)
                 else:
                     self.checkBox_temp_alarm_status.setChecked(False)
+                    self.label_alarm.setText("Alarm is off")
 
             elif response['task_type'] == TaskTypes.SERIAL_WRITE_ALARM:
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_ALARM, self.task_done_callback))
                 self.show_alert_dialog("Write alarm successful!")
 
             elif response['task_type'] == TaskTypes.SERIAL_READ_LOG:
@@ -887,6 +915,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
     def clear_labels(self):
+        self.label_alarm.setText("")
         self.label_device_id.setText("")
         self.lbl_device_id.setText("")
         self.label_device_type.setText("")
@@ -982,7 +1011,7 @@ if __name__ == '__main__':
         screen_resolution = app.desktop().screenGeometry()
         width, height = screen_resolution.width(), screen_resolution.height()
         w = 550
-        h = 730
+        h = 750
         app.setApplicationName("CredoWare")
         try:
             app.setWindowIcon(QtGui.QIcon("logo.png"))

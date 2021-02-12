@@ -11,7 +11,7 @@ class MyAboutWindow(QMainWindow, Ui_About):
         super(MyAboutWindow, self).__init__(parent)
         self.setupUi(self)
 
-        self.version = semantic_version.Version('1.0.4')
+        self.version = semantic_version.Version('1.1.0')
         self.version_number.setText(str(self.version))
         self.btn_update_chk.clicked.connect(self.check_update_button)
 

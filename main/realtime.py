@@ -41,17 +41,17 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
         self.chk_dev_id = ""
 
-        self.temp_lcd.display(0)
-        self.hum_lcd.display(0)
-        self.pre_lcd.display(0)
+        self.temp_lcd.display('-')
+        self.hum_lcd.display('-')
+        self.pre_lcd.display('-')
 
     def initialize_and_show(self):
         self.show()
 
     def start_pressed(self):
-        self.temp_lcd.display(0)
-        self.hum_lcd.display(0)
-        self.pre_lcd.display(0)
+        self.temp_lcd.display('-')
+        self.hum_lcd.display('-')
+        self.pre_lcd.display('-')
 
         x = DataReader()
         self.chk_dev_id = x.read_data("read_dev_ID")
@@ -126,9 +126,10 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
 
         try:
             if self.chk_dev_id == 'CSL-T0.5':
-                tmp = self.apply_rules_to_values(float(temp))
+                # tmp = self.apply_rules_to_values(float(temp))
                 # temp = ((temp*(9/5))+32)  # convert to fahrenheit
                 # print(tmp)
+                tmp = float(temp)
                 self.temp_lcd.display(tmp)
                 self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
                 self.temperature_data.append(tmp)

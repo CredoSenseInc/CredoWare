@@ -83,7 +83,8 @@ def generateReport(df,filepath = "report.pdf", dev_name="custom dev name", dev_m
     df1 = df.iloc[:, :-1]  # Alarm is the last column
     sumStat = df1.describe().round().T.reset_index()  # cal summary stats, round, transpose df, and resets row index
     sumStat.columns.values[0] = 'variable(s)'  # adding variable names
-
+    print(df)
+    print(df1)
     # setting fonts for the plot
     font = {'family': 'Arial', 'size': 9}
     plt.rc('font', **font)
@@ -211,11 +212,11 @@ def generateReport(df,filepath = "report.pdf", dev_name="custom dev name", dev_m
 
         # plotting first variable data
         ax1.plot(df["DateTime"], df[df.columns[1]], color="#f37738")
-        ax1.set_ylabel(df.columns[1])
+        ax1.set_ylabel(df.columns[1], fontsize=7)
 
         # plotting second variable data
         ax2.plot(df["DateTime"], df[df.columns[2]], color="#7b85d4")
-        ax2.set_ylabel(df.columns[2])
+        ax2.set_ylabel(df.columns[2], fontsize=7)
 
         # plotting horizontal lines for alarm upper and lower limits for two-variable loggers
         # for now  it's just temperature and relative humidity
@@ -251,15 +252,15 @@ def generateReport(df,filepath = "report.pdf", dev_name="custom dev name", dev_m
 
         # plotting first variable data
         ax1.plot(df["DateTime"], df[df.columns[1]], color="#f37738")
-        ax1.set_ylabel(df.columns[1])
+        ax1.set_ylabel(df.columns[1],fontsize=6)
 
         # plotting second variable data
         ax2.plot(df["DateTime"], df[df.columns[2]], color="#7b85d4")
-        ax2.set_ylabel(df.columns[2])
+        ax2.set_ylabel(df.columns[2],fontsize=6)
 
         # plotting third variable data
         ax3.plot(df["DateTime"], df[df.columns[3]], color="#83c995")
-        ax3.set_ylabel(df.columns[3])
+        ax3.set_ylabel(df.columns[3],fontsize=6)
 
         # plotting horizontal lines for alarm upper and lower limits for two-variable loggers
         # for now  it's just temperature relative humidity, and barometric pressure

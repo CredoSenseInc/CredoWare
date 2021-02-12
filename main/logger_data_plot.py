@@ -98,7 +98,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             alrm_str = x.read_data('read_alarm')
             alarm_status, high_temp_value, low_temp_value, high_hum_value, low_hum_value, high_pre_value, low_pre_value = alrm_str.split(
                 ' ')
-
+            print(alarm_status)
             combo_index = self.comboBox_temp_unit.currentIndex()
 
             if combo_index == 1:
@@ -114,6 +114,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 low_temp_value = str(float_low_temp_value)
 
             file_name = self.chk_dev_id + '_' + self.dev_name + "_summary_report_" + self.temp_unit_now + ".pdf"
+            file_name = file_name.replace(' ', '_')
             full_file_path = os.path.join(file_dir, file_name)
 
             import pandas
@@ -122,6 +123,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             float_humidity_data = []
             float_pressure_data = []
             alarm_data = []
+
             float_temperature_data.clear()
             float_humidity_data.clear()
             float_pressure_data.clear()
@@ -131,30 +133,32 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 for i in range(0, len(self.temperature_data)):
                     float_temperature_data.insert(i, float(self.temperature_data[i]))
                     float_humidity_data.insert(i, float(self.humidity_data[i]))
-                    float_humidity_data.insert(i, float(self.pressure_data[i]))
+                    float_pressure_data.insert(i, float(self.pressure_data[i]))
 
-                    if (float_humidity_data[i] >= float(high_hum_value)) \
-                            or (float_humidity_data[i] <= float(low_hum_value)) \
-                            or (float_temperature_data[i] >= float(high_temp_value)) \
-                            or (float_temperature_data[i] <= float(low_temp_value)) \
-                            or (float_pressure_data[i] >= float(high_pre_value)) \
-                            or (float_pressure_data[i] <= float(low_pre_value)):
+                    if ((float_humidity_data[i] >= float(high_hum_value))
+                        or (float_humidity_data[i] <= float(low_hum_value))
+                        or (float_temperature_data[i] >= float(high_temp_value))
+                        or (float_temperature_data[i] <= float(low_temp_value))
+                        or (float_pressure_data[i] >= float(high_pre_value))
+                        or (float_pressure_data[i] <= float(low_pre_value))) \
+                            and float(alarm_status == 1):
                         alarm_data.insert(i, 1)
                     else:
                         alarm_data.insert(i, 0)
                 pdf_data = pandas.DataFrame({"DateTime": self.timedate_data, 'Temperature': float_temperature_data,
                                              'Relative Humidity': float_humidity_data,
-                                             "Barometric Pressure": self.pressure_data, 'Alarm': alarm_data})
+                                             "Barometric Pressure": float_pressure_data, 'Alarm': alarm_data})
 
             if self.chk_dev_id == 'CSL-H2 T0.2':
                 for i in range(0, len(self.temperature_data)):
                     float_temperature_data.insert(i, float(self.temperature_data[i]))
                     float_humidity_data.insert(i, float(self.humidity_data[i]))
 
-                    if (float_humidity_data[i] >= float(high_hum_value)) \
-                            or (float_humidity_data[i] <= float(low_hum_value)) \
-                            or (float_temperature_data[i] >= float(high_temp_value)) \
-                            or (float_temperature_data[i] <= float(low_temp_value)):
+                    if ((float_humidity_data[i] >= float(high_hum_value))
+                            or (float_humidity_data[i] <= float(low_hum_value))
+                            or (float_temperature_data[i] >= float(high_temp_value))
+                            or (float_temperature_data[i] <= float(low_temp_value))) \
+                            and float(alarm_status == 1):
                         alarm_data.insert(i, 1)
                     else:
                         alarm_data.insert(i, 0)
@@ -164,8 +168,8 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             if self.chk_dev_id == 'CSL-T0.5':
                 for i in range(0, len(self.temperature_data)):
                     float_temperature_data.insert(i, float(self.temperature_data[i]))
-                    if (float_temperature_data[i] >= float(high_temp_value)) or (float_temperature_data[i] <= float(
-                            low_temp_value)):
+                    if ((float_temperature_data[i] >= float(high_temp_value)) or (float_temperature_data[i] <= float(
+                            low_temp_value))) and float(alarm_status == 1):
                         alarm_data.insert(i, 1)
                     else:
                         alarm_data.insert(i, 0)
@@ -207,7 +211,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                             writer.writerow([i, x, y, z, k])
 
                     if self.chk_dev_id == 'CSL-H2 T0.2':
-                        writer.writerow(["Index", "Date-Time", "Temp", "RH", "Flag"])
+                        writer.writerow(["Index", "Date-Time", "Temp", "RH"])
 
                         try:
                             # temp_flags = self.flag_finder(value_list=self.temperature_data, max_deviation=1)
@@ -230,22 +234,22 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                             pass
 
                     if self.chk_dev_id == 'CSL-T0.5':
-                        writer.writerow(["Index", "Date-time", "Temp"])
+                        writer.writerow(["Index", "Date-Time", "Temp"])
 
                         try:
-                            temp_flags = self.flag_finder(value_list=self.temperature_data, max_deviation=1)
-
-                            flags = []
-                            for i in range(0, len(temp_flags)):
-                                if temp_flags[i] == 1:
-                                    flags.insert(i, 1)
-                                else:
-                                    flags.insert(i, 0)
+                            #     temp_flags = self.flag_finder(value_list=self.temperature_data, max_deviation=1)
+                            #
+                            #     flags = []
+                            #     for i in range(0, len(temp_flags)):
+                            #         if temp_flags[i] == 1:
+                            #             flags.insert(i, 1)
+                            #         else:
+                            #             flags.insert(i, 0)
 
                             i = 0
-                            for x, y, f in zip(self.timedate_data, self.temperature_data, flags):
+                            for x, y in zip(self.timedate_data, self.temperature_data):
                                 i += 1
-                                writer.writerow([i, x, y, f])
+                                writer.writerow([i, x, y])
                         except Exception as er:
                             print(er)
                             pass
@@ -542,6 +546,10 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.MplWidget.canvas.axes2.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
                 self.MplWidget.canvas.axes3.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
                 self.MplWidget.canvas.axes3.ticklabel_format(useOffset=False, axis='y')
+
+                self.MplWidget.canvas.axes.xaxis.set_major_locator(ticker.MaxNLocator(nbins=6))
+                self.MplWidget.canvas.axes2.xaxis.set_major_locator(ticker.MaxNLocator(nbins=6))
+                self.MplWidget.canvas.axes3.xaxis.set_major_locator(ticker.MaxNLocator(nbins=6))
 
                 self.MplWidget.canvas.axes.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
                 self.MplWidget.canvas.axes2.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))

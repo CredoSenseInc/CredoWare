@@ -66,7 +66,7 @@ class DataReader(metaclass=SingletonMeta):
                 break
             try:
                 data = self.ser.readline().decode('utf-8').rstrip('\r\n')
-                print(data)
+                # print(data)
                 if data == "ready":
                     self.ser.reset_input_buffer()
                     self.ser.reset_output_buffer()
