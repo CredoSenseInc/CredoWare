@@ -131,7 +131,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                 # print(tmp)
                 tmp = float(temp)
                 self.temp_lcd.display(tmp)
-                self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
+                self.timedate_data.append(datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))
                 self.temperature_data.append(tmp)
 
             if self.chk_dev_id == 'CSL-H2 T0.2':
@@ -145,7 +145,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                 else:
                     self.temp_lcd.display(tmp)
                     self.hum_lcd.display(hum)
-                    self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
+                    self.timedate_data.append(datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))
                     self.temperature_data.append(tmp)
                     self.humidity_data.append(hum)
 
@@ -160,7 +160,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                 self.temp_lcd.display(tmp)
                 self.hum_lcd.display(hum)
                 self.pre_lcd.display(pre)
-                self.timedate_data.append(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S"))
+                self.timedate_data.append(datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))
                 self.temperature_data.append(tmp)
                 self.humidity_data.append(hum)
                 self.pressure_data.append(pre)
@@ -218,7 +218,7 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
         msg_box.exec_()
 
     def choose_directory(self):
-        self.save_file_name = QFileDialog.getSaveFileName(self, directory='', caption='Save File As', filter='*.csv',
+        self.save_file_name = QFileDialog.getSaveFileName(self, directory='Streaming_data.csv', caption='Save File As', filter='*.csv',
                                                           initialFilter='*.csv')
         print(self.save_file_name)
         # self.write_yes = True
@@ -231,18 +231,25 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                 writer = csv.writer(file)
 
                 if self.chk_dev_id == 'CSL-H2 T0.2':
-                    writer.writerow(["index", "date-time", "temp", "rh"])
+                    writer.writerow(["Index", "Date-time", "Temperature (C)", "Relative Humidity (%)"])
                     i = 0
                     for x, y, z in zip(self.timedate_data, self.temperature_data, self.humidity_data):
                         i += 1
                         writer.writerow([i, x, y, z])
 
                 if self.chk_dev_id == 'CSL-T0.5':
-                    writer.writerow(["index", "date-time", "temp"])
+                    writer.writerow(["Index", "Date-time", "Temperature (C)"])
                     i = 0
                     for x, y in zip(self.timedate_data, self.temperature_data):
                         i += 1
                         writer.writerow([i, x, y])
+
+                if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+                    writer.writerow(["Index", "Date-time", "Temperature (C)", "Relative Humidity (%)", "Barometric Pressure (mbar)"])
+                    i = 0
+                    for x, y, z, k in zip(self.timedate_data, self.temperature_data, self.humidity_data, self.pressure_data):
+                        i += 1
+                        writer.writerow([i, x, y, z, k])
 
             msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Information)

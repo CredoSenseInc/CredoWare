@@ -372,7 +372,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.waiting_window_end()
                         self.show_alert_dialog("High temperature can be maximum 85.")
                         return
-                    elif low_temp < -45:
+                    elif low_temp < -40:
                         self.waiting_window_end()
                         self.show_alert_dialog("Low temperature should be greater than or equal to -40.")
                         return
@@ -404,8 +404,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     elif high_temp > 85:
                         self.show_alert_dialog("High temperature can be maximum 85.")
                         return
-                    elif low_temp < -45:
-                        self.show_alert_dialog("Low temperature should be greater than or equal to -45.")
+                    elif low_temp < -40:
+                        self.show_alert_dialog("Low temperature should be greater than or equal to -40.")
                         return
 
                     if low_hum > high_hum:
@@ -424,8 +424,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     elif high_pre > 1200:
                         self.show_alert_dialog("Pressure can be maximum 1200.")
                         return
-                    elif low_pre < 600:
-                        self.show_alert_dialog("Low Pressure should be greater than or equal to 0.")
+                    elif low_pre < 300:
+                        self.show_alert_dialog("Low Pressure should be greater than or equal to 300.")
                         return
 
                 if self.chk_dev_id == 'CSL-T0.5':

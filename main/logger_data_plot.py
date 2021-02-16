@@ -87,7 +87,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
         file_name_dt.extend(end_rt.split(" "))
         file_name = '_'.join(file_name_dt)
 
-        file_name = file_name + "_" + self.temp_unit_now + "." + file_ext
+        file_name = file_name + "_" + "." + file_ext
 
         full_file_path = os.path.join(file_dir, file_name)
 
@@ -113,9 +113,9 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 float_low_temp_value = self.celsius_to_fahrenheit(float(low_temp_value))
                 low_temp_value = str(float_low_temp_value)
 
-            file_name = self.chk_dev_id + '_' + self.dev_name + "_summary_report_" + self.temp_unit_now + ".pdf"
-            file_name = file_name.replace(' ', '_')
-            full_file_path = os.path.join(file_dir, file_name)
+            # file_name = self.chk_dev_id + '_' + self.dev_name + "_summary_report_" + self.temp_unit_now + ".pdf"
+            # file_name = file_name.replace(' ', '_')
+            # full_file_path = os.path.join(file_dir, file_name)
 
             import pandas
 
@@ -135,12 +135,12 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                     float_humidity_data.insert(i, float(self.humidity_data[i]))
                     float_pressure_data.insert(i, float(self.pressure_data[i]))
 
-                    if ((float_humidity_data[i] >= float(high_hum_value))
-                        or (float_humidity_data[i] <= float(low_hum_value))
-                        or (float_temperature_data[i] >= float(high_temp_value))
-                        or (float_temperature_data[i] <= float(low_temp_value))
-                        or (float_pressure_data[i] >= float(high_pre_value))
-                        or (float_pressure_data[i] <= float(low_pre_value))) \
+                    if ((float_humidity_data[i] > float(high_hum_value))
+                        or (float_humidity_data[i] < float(low_hum_value))
+                        or (float_temperature_data[i] > float(high_temp_value))
+                        or (float_temperature_data[i] < float(low_temp_value))
+                        or (float_pressure_data[i] > float(high_pre_value))
+                        or (float_pressure_data[i] < float(low_pre_value))) \
                             and float(alarm_status == 1):
                         alarm_data.insert(i, 1)
                     else:
@@ -154,10 +154,10 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                     float_temperature_data.insert(i, float(self.temperature_data[i]))
                     float_humidity_data.insert(i, float(self.humidity_data[i]))
 
-                    if ((float_humidity_data[i] >= float(high_hum_value))
-                            or (float_humidity_data[i] <= float(low_hum_value))
-                            or (float_temperature_data[i] >= float(high_temp_value))
-                            or (float_temperature_data[i] <= float(low_temp_value))) \
+                    if ((float_humidity_data[i] > float(high_hum_value))
+                            or (float_humidity_data[i] < float(low_hum_value))
+                            or (float_temperature_data[i] > float(high_temp_value))
+                            or (float_temperature_data[i] < float(low_temp_value))) \
                             and float(alarm_status == 1):
                         alarm_data.insert(i, 1)
                     else:
@@ -168,7 +168,8 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             if self.chk_dev_id == 'CSL-T0.5':
                 for i in range(0, len(self.temperature_data)):
                     float_temperature_data.insert(i, float(self.temperature_data[i]))
-                    if ((float_temperature_data[i] >= float(high_temp_value)) or (float_temperature_data[i] <= float(
+
+                    if ((float_temperature_data[i] > float(high_temp_value)) or (float_temperature_data[i] < float(
                             low_temp_value))) and float(alarm_status == 1):
                         alarm_data.insert(i, 1)
                     else:
@@ -203,12 +204,17 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                     #     print(er)
 
                     if self.chk_dev_id == 'CSL-H2 P1 T0.2':
-                        writer.writerow(["Index", "Date-Time", "Temp", "RH", "BMP"])
-                        i = 0
-                        for x, y, z, k in zip(self.timedate_data, self.temperature_data, self.humidity_data,
-                                              self.pressure_data):
-                            i += 1
-                            writer.writerow([i, x, y, z, k])
+                        writer.writerow(["Index", "Date-Time", "Temp", "RH", "BMP", "Alarm"])
+
+                        try:
+                            i = 0
+                            for x, y, z, k in zip(self.timedate_data, self.temperature_data, self.humidity_data,
+                                                  self.pressure_data):
+                                i += 1
+                                writer.writerow([i, x, y, z, k])
+                        except Exception as er:
+                            print(er)
+                            pass
 
                     if self.chk_dev_id == 'CSL-H2 T0.2':
                         writer.writerow(["Index", "Date-Time", "Temp", "RH"])
@@ -357,7 +363,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
 
                 self.MplWidget.canvas.axes.plot(self.timedate_data, self.float_temp_data, linestyle='solid',
                                                 label='_nolegend_', color='r', marker='.')
-                self.MplWidget.canvas.axes.xaxis.set_major_locator(mdates.AutoDateLocator())
+                self.MplWidget.canvas.axes.xaxis.set_major_locator(ticker.MaxNLocator(nbins=6))
                 self.MplWidget.canvas.axes.yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
                 self.MplWidget.canvas.axes.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%y %H:%M'))
                 self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
@@ -426,11 +432,11 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
 
             tstart = datetime.datetime.strptime(current_key, "%H:%M:%S %d/%m/%Y")
             # print(tstart.strftime("%H:%M:%S %d %B %Y"))
-            self.start_dt = tstart.strftime("%d %B %Y at %H:%M")
+            self.start_dt = tstart.strftime("%d %b %Y at %H:%M")
             tint = datetime.timedelta(minutes=float(l) * (float(n) - 1))
             tend = tstart + tint
             # print(tend.strftime("%H:%M:%S %d/%m/%Y"))
-            self.end_dt = tend.strftime("%d %B %Y at %H:%M")
+            self.end_dt = tend.strftime("%d %b %Y at %H:%M")
 
             c = 1
             for i in range(1, len(self.data)):
@@ -562,7 +568,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.MplWidget.canvas.axes2.set_ylabel('Relative Humidity (%)', fontweight='bold')
 
                 self.MplWidget.canvas.axes3.set_xlabel('Date-Time', fontweight='bold')
-                self.MplWidget.canvas.axes3.set_ylabel('Barometric Pressure (mBar)', fontweight='bold')
+                self.MplWidget.canvas.axes3.set_ylabel('Barometric Pressure (mbar)', fontweight='bold')
 
                 self.MplWidget.canvas.figure.autofmt_xdate()
 
