@@ -30,6 +30,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
         self.temp_unit_now = 'C'
 
     def initialize_and_show(self, interval, data):
+        # print(data)
         self.start_dt = ''
         self.end_dt = ''
         self.interval = interval
@@ -39,6 +40,8 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             self.populate_graph()
             self.setWindowTitle("Loggeed Data")
             self.show()
+        else:
+            print('no data ??')
 
         if self.iserror == '1' and self.data != []:
             msg_box = QMessageBox(self)
@@ -77,6 +80,8 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
 
     def write_data_to_file(self, file_ext, file_dir):
 
+        # TODO: alarm comparison happens with current alarm config and only in software. Need to find a solution.
+        # Probable solution: Automatically download data when logger is connected.
         file_name_dt = []
         start_rt = self.start_dt.replace('/', '-')
         start_rt = start_rt.replace(':', '-')
@@ -155,9 +160,9 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                     float_humidity_data.insert(i, float(self.humidity_data[i]))
 
                     if ((float_humidity_data[i] > float(high_hum_value))
-                            or (float_humidity_data[i] < float(low_hum_value))
-                            or (float_temperature_data[i] > float(high_temp_value))
-                            or (float_temperature_data[i] < float(low_temp_value))) \
+                        or (float_humidity_data[i] < float(low_hum_value))
+                        or (float_temperature_data[i] > float(high_temp_value))
+                        or (float_temperature_data[i] < float(low_temp_value))) \
                             and float(alarm_status == 1):
                         alarm_data.insert(i, 1)
                     else:
@@ -413,8 +418,12 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
     def populate_graph(self):
         x = DataReader()
         self.chk_dev_id = x.read_data("read_dev_ID")
+        # self.chk_dev_id = 'CSL-H2 T0.2'
         row = x.read_data("read_row")
+        # row = 2
         self.iserror = x.read_data("read_error")
+        # self.iserror = 0
+
         # print("row is" + row)
         self.temperature_data = []
         self.humidity_data = []
@@ -423,6 +432,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
 
         if self.data != []:
             t, d, n, l = self.data[0].split()
+            # n = 99
             # print("time is :" + t)
             # print("date is :" + d)
             current_key = f"{t} {d}"
@@ -690,6 +700,7 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
             msg_box.setWindowTitle("Message")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec_()
+
 
     def apply_rules_to_values(self, vals):
         c1, c2, c3, r = utils.READ_CONST_RESPONSE.split(' ')

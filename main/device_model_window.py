@@ -30,6 +30,7 @@ class Ui_Device_Selector(object):
         self.comboBox.setObjectName("comboBox")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
+        self.comboBox.addItem("")
         self.gridLayout.addWidget(self.comboBox, 0, 2, 1, 1, QtCore.Qt.AlignRight)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem, 0, 1, 1, 1)
@@ -95,6 +96,7 @@ class Ui_Device_Selector(object):
         Device_Selector.setWindowTitle(_translate("Device_Selector", "MainWindow"))
         self.comboBox.setItemText(0, _translate("Device_Selector", "CSL-T0.5"))
         self.comboBox.setItemText(1, _translate("Device_Selector", "CSL-H2 T0.2"))
+        self.comboBox.setItemText(2, _translate("Device_Selector", "CSL-H2 P1 T0.2"))
         self.label.setText(_translate("Device_Selector", "Please select device model"))
         self.resetButton.setText(_translate("Device_Selector", "Reset Device"))
         self.bottom_label.setText(_translate("Device_Selector", "WARNING! \n"

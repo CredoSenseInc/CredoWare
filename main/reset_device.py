@@ -248,6 +248,11 @@ class Reset(QMainWindow, Ui_Device_Selector):
                 self.data_points = '2'
                 self.data_length = '4'
 
+            elif self.comboBox.currentText() == 'CSL-H2 P1 T0.2':
+                self.max_task = 11
+                self.data_points = '3'
+                self.data_length = '4'
+
             self.write_data_points_length(self.data_points, self.data_length, self.nn)
 
             self.write_last_written_loaction()

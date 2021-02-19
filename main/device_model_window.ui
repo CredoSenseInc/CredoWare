@@ -38,6 +38,11 @@
         <string>CSL-H2 T0.2</string>
        </property>
       </item>
+      <item>
+       <property name="text">
+        <string>CSL-H2 P1 T0.2</string>
+       </property>
+      </item>
      </widget>
     </item>
     <item row="0" column="1">

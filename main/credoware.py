@@ -670,7 +670,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 logger_plot_window = LoggerPlotWindow(self)
                 try:
                     if response['data']:
-                        logger_plot_window.initialize_and_show(1, response['data'])
+                        x = response['data']
+                        # x = x[0:100]
+                        print(len(x))
+                        logger_plot_window.initialize_and_show(1, x)
                         self.p.progressBar.setValue(100)
                         self.p.close()
                     else:

@@ -102,7 +102,7 @@
     <item row="3" column="3">
      <widget class="QPushButton" name="connect_button">
       <property name="toolTip">
-       <string>Reestablish connection</string>
+       <string>connect/disconnect</string>
       </property>
       <property name="statusTip">
        <string>Refresh the existing connection or reconnect to a new logger</string>
