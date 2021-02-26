@@ -596,6 +596,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_DEV_NAME, self.task_done_callback))
 
+                    TaskConsumer().insert_task(Task(TaskTypes.SERIAL_MEMORY, self.task_done_callback))
+
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_LOG, self.task_done_callback))
 
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_DAYLIGHT, self.task_done_callback))
@@ -603,6 +605,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READ_ALARM, self.task_done_callback))
                     # TaskConsumer().insert_task(Task(TaskTypes.SERIAL_REAL_TIME, self.task_done_callback))
                     TaskConsumer().insert_task(Task(TaskTypes.SERIAL_RTC_ERROR, self.task_done_callback))
+
+            elif response['task_type'] == TaskTypes.SERIAL_MEMORY:
+
+                last_written_location = response['data']
+                print(last_written_location)
+                free_data_point = 0
+                if last_written_location is not None:
+                    if int(last_written_location) >= 524200:
+                        free_bytes = 0
+                        free_data_point = 0
+                    else:
+                        free_bytes = 524200 - int(last_written_location)
+
+                    if free_bytes < 0:
+                        free_bytes = 0
+                        free_data_point = 0
+
+                    if free_bytes != 0:
+                        if self.chk_dev_id == 'CSL-T0.5':
+                            free_data_point = (free_bytes - 12) / 2
+
+                        if self.chk_dev_id == 'CSL-H2 T0.2':
+                            free_data_point = (free_bytes - 12) / 8
+
+                        if self.chk_dev_id == 'CSL-H2 P1 T0.2':
+                            free_data_point = (free_bytes - 12) / 12
+
+                free_data_point = round(free_data_point)
+                self.label_memory_free.setText(f'{free_data_point} points available')
 
             elif response['task_type'] == TaskTypes.SERIAL_TIME:
                 time, date = response['data'].strip().split()
@@ -671,6 +702,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 try:
                     if response['data']:
                         x = response['data']
+                        # x[0]= '10:10:10 24/02/2021 38221 30'
                         # x = x[0:100]
                         print(len(x))
                         logger_plot_window.initialize_and_show(1, x)
@@ -716,6 +748,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.show_alert_dialog("Logging interval set successfully!")
 
             elif response['task_type'] == TaskTypes.SERIAL_ERASE:
+                TaskConsumer().insert_task(Task(TaskTypes.SERIAL_MEMORY, self.task_done_callback))
                 self.show_alert_dialog("Erase successful")
 
             elif response['task_type'] == TaskTypes.SERIAL_WRITE_LOG_START_STOP:
@@ -739,7 +772,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.lineEdit_high_hum.setDisabled(True)
                     self.lineEdit_low_pressure.setDisabled(True)
                     self.lineEdit_high_pressure.setDisabled(True)
-                    self.label_alarm.setText("Alarm is enabled. Temp High: " + high_temp_value + " | Low: " + low_temp_value)
+                    self.label_alarm.setText(
+                        "Alarm is enabled. Temp High: " + high_temp_value + " | Low: " + low_temp_value)
 
                     if self.chk_dev_id == 'CSL-H2 T0.2':
                         self.lineEdit_high_hum.setText(high_hum_value)
@@ -751,8 +785,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.lineEdit_high_hum.setDisabled(False)
                         self.lineEdit_low_pressure.setDisabled(True)
                         self.lineEdit_high_pressure.setDisabled(True)
-                        self.label_alarm.setText("Alarm is enabled. Temp High: " + high_temp_value + " Low: " + low_temp_value \
-                                                 + " | RH High: " + high_hum_value + " Low: " + low_hum_value)
+                        self.label_alarm.setText(
+                            "Alarm is enabled. Temp High: " + high_temp_value + " Low: " + low_temp_value \
+                            + " | RH High: " + high_hum_value + " Low: " + low_hum_value)
                     if self.chk_dev_id == 'CSL-H2 P1 T0.2':
                         self.lineEdit_high_hum.setText(high_hum_value)
                         self.lineEdit_low_hum.setText(low_hum_value)
@@ -765,9 +800,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.lineEdit_high_hum.setDisabled(False)
                         self.lineEdit_low_pressure.setDisabled(False)
                         self.lineEdit_high_pressure.setDisabled(False)
-                        self.label_alarm.setText("Alarm is enabled. Temp High: " + high_temp_value + " Low: " + low_temp_value \
-                                                 + " | RH high: " + high_hum_value + " Low: " + low_hum_value \
-                                                 + " | BMP high: " + high_pre_value + " Low: " + low_pre_value)
+                        self.label_alarm.setText(
+                            "Alarm is enabled. Temp High: " + high_temp_value + " Low: " + low_temp_value \
+                            + " | RH high: " + high_hum_value + " Low: " + low_hum_value \
+                            + " | BMP high: " + high_pre_value + " Low: " + low_pre_value)
                 else:
                     self.checkBox_temp_alarm_status.setChecked(False)
                     self.label_alarm.setText("Alarm is off")
@@ -918,6 +954,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # TaskConsumer().insert_task(Task(TaskTypes.SERIAL_READING_MODE, self.task_done_callback))
 
     def clear_labels(self):
+        self.label_memory_free.setText("")
         self.label_alarm.setText("")
         self.label_device_id.setText("")
         self.lbl_device_id.setText("")
@@ -1014,7 +1051,7 @@ if __name__ == '__main__':
         screen_resolution = app.desktop().screenGeometry()
         width, height = screen_resolution.width(), screen_resolution.height()
         w = 550
-        h = 750
+        h = 760
         app.setApplicationName("CredoWare")
         try:
             app.setWindowIcon(QtGui.QIcon("logo.png"))

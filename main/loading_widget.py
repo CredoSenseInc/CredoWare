@@ -29,7 +29,8 @@ class Ui_ProgBar(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(ProgBar)
         self.verticalLayout.setObjectName("verticalLayout")
         self.progressBar = QtWidgets.QProgressBar(ProgBar)
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setProperty("value", 33)
+        self.progressBar.setTextVisible(False)
         self.progressBar.setObjectName("progressBar")
         self.verticalLayout.addWidget(self.progressBar)
 

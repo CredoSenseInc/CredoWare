@@ -46,6 +46,7 @@ class TaskTypes:
     SERIAL_WRITE_LED_BRIGHTNESS = 'led_bright'
     SERIAL_CONNECT_LOGGER = 'con'
     SERIAL_DISCONNECT_LOGGER = 'discon'
+    SERIAL_MEMORY = 'mem'
 
 class TaskStatus:
     WAITING = 0
@@ -118,7 +119,8 @@ def do_task(task_type, new_data):
             or task_type == TaskTypes.SERIAL_ERASE\
             or task_type == TaskTypes.SERIAL_ERASE_CHIP\
             or task_type == TaskTypes.SERIAL_CONNECT_LOGGER\
-            or task_type == TaskTypes.SERIAL_DISCONNECT_LOGGER:
+            or task_type == TaskTypes.SERIAL_DISCONNECT_LOGGER\
+            or task_type == TaskTypes.SERIAL_MEMORY:
 
         if not dr.is_port_open():
             raise Exception("Device port is closed.")

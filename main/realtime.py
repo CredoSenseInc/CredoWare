@@ -191,9 +191,9 @@ class MyRealTimeWindow(QMainWindow, Ui_RealTimeWindow):
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            self.temp_lcd.display(0)
-            self.hum_lcd.display(0)
-            self.pre_lcd.display(0)
+            self.temp_lcd.display('-')
+            self.hum_lcd.display('-')
+            self.pre_lcd.display('-')
             if self.write_yes:
                 self.choose_directory()
                 self.write_csv()

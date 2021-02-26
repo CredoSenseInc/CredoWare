@@ -442,11 +442,11 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
 
             tstart = datetime.datetime.strptime(current_key, "%H:%M:%S %d/%m/%Y")
             # print(tstart.strftime("%H:%M:%S %d %B %Y"))
-            self.start_dt = tstart.strftime("%d %b %Y at %H:%M")
+            self.start_dt = tstart.strftime("%d %B %Y at %H:%M")
             tint = datetime.timedelta(minutes=float(l) * (float(n) - 1))
             tend = tstart + tint
             # print(tend.strftime("%H:%M:%S %d/%m/%Y"))
-            self.end_dt = tend.strftime("%d %b %Y at %H:%M")
+            self.end_dt = tend.strftime("%d %B %Y at %H:%M")
 
             c = 1
             for i in range(1, len(self.data)):
@@ -508,44 +508,51 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 for i in range(0, len(self.temperature_data)):
 
                     if self.temp_unit_now == 'C':
-                        if not (float(self.temperature_data[i]) >= 85 or
-                                float(self.temperature_data[i]) <= -40 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            if not (math.isnan(float(self.humidity_data[i])) or float(
-                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
-                                if not (math.isnan(float(self.pressure_data[i])) or float(
-                                        self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
-                                    self.float_temp_data.append(float(self.temperature_data[i]))
-                                    self.modified_timedate_data.append((self.timedate_data[i]))
-                                    self.float_hum_data.append(float(self.humidity_data[i]))
-                                    self.float_pre_data.append(float(self.pressure_data[i]))
+                        if not self.temperature_data[i] == 'ovf':
+                            if not self.humidity_data[i] == 'ovf':
+                                if not self.pressure_data[i] == 'ovf':
+                                    if not (float(self.temperature_data[i]) >= 85 or
+                                            float(self.temperature_data[i]) <= -40 or
+                                            math.isnan(float(self.temperature_data[i]))):
+                                        if not (math.isnan(float(self.humidity_data[i])) or float(
+                                                self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                            if not (math.isnan(float(self.pressure_data[i])) or float(
+                                                    self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
+                                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                                self.modified_timedate_data.append((self.timedate_data[i]))
+                                                self.float_hum_data.append(float(self.humidity_data[i]))
+                                                self.float_pre_data.append(float(self.pressure_data[i]))
                     elif self.temp_unit_now == 'F':
-
-                        if not (float(self.temperature_data[i]) >= 185 or
-                                float(self.temperature_data[i]) <= -40 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            if not (math.isnan(float(self.humidity_data[i])) or float(
-                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
-                                if not (math.isnan(float(self.pressure_data[i])) or float(
-                                        self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
-                                    self.float_temp_data.append(float(self.temperature_data[i]))
-                                    self.modified_timedate_data.append((self.timedate_data[i]))
-                                    self.float_hum_data.append(float(self.humidity_data[i]))
-                                    self.float_pre_data.append(float(self.pressure_data[i]))
+                        if not self.temperature_data[i] == 'ovf':
+                            if not self.humidity_data[i] == 'ovf':
+                                if not self.pressure_data[i] == 'ovf':
+                                    if not (float(self.temperature_data[i]) >= 185 or
+                                            float(self.temperature_data[i]) <= -40 or
+                                            math.isnan(float(self.temperature_data[i]))):
+                                        if not (math.isnan(float(self.humidity_data[i])) or float(
+                                                self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                            if not (math.isnan(float(self.pressure_data[i])) or float(
+                                                    self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
+                                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                                self.modified_timedate_data.append((self.timedate_data[i]))
+                                                self.float_hum_data.append(float(self.humidity_data[i]))
+                                                self.float_pre_data.append(float(self.pressure_data[i]))
 
                     elif self.temp_unit_now == 'K':
-
-                        if not (float(self.temperature_data[i]) >= 358.15 or
-                                float(self.temperature_data[i]) <= 233.15 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            if not (math.isnan(float(self.humidity_data[i])) or float(
-                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
-                                if not (math.isnan(float(self.pressure_data[i])) or float(
-                                        self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
-                                    self.float_temp_data.append(float(self.temperature_data[i]))
-                                    self.modified_timedate_data.append((self.timedate_data[i]))
-                                    self.float_hum_data.append(float(self.humidity_data[i]))
-                                    self.float_pre_data.append(float(self.pressure_data[i]))
+                        if not self.temperature_data[i] == 'ovf':
+                            if not self.humidity_data[i] == 'ovf':
+                                if not self.pressure_data[i] == 'ovf':
+                                    if not (float(self.temperature_data[i]) >= 358.15 or
+                                            float(self.temperature_data[i]) <= 233.15 or
+                                            math.isnan(float(self.temperature_data[i]))):
+                                        if not (math.isnan(float(self.humidity_data[i])) or float(
+                                                self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                            if not (math.isnan(float(self.pressure_data[i])) or float(
+                                                    self.pressure_data[i]) > 1200 or float(self.pressure_data[i]) < 600):
+                                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                                self.modified_timedate_data.append((self.timedate_data[i]))
+                                                self.float_hum_data.append(float(self.humidity_data[i]))
+                                                self.float_pre_data.append(float(self.pressure_data[i]))
 
                 self.MplWidget.canvas.axes.plot(self.modified_timedate_data, self.float_temp_data, linestyle='solid',
                                                 label='_nolegend_', color='r', marker='.')
@@ -596,37 +603,40 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.float_hum_data = []
                 self.modified_timedate_data = []
                 for i in range(0, len(self.temperature_data)):
-
-                    if self.temp_unit_now == 'C':
-                        if not (float(self.temperature_data[i]) >= 85 or
-                                float(self.temperature_data[i]) <= -40 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            if not (math.isnan(float(self.humidity_data[i])) or float(
-                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
-                                self.float_temp_data.append(float(self.temperature_data[i]))
-                                self.modified_timedate_data.append((self.timedate_data[i]))
-                                self.float_hum_data.append(float(self.humidity_data[i]))
+                    if not self.temperature_data[i] == 'ovf':
+                        if not self.humidity_data[i] == 'ovf':
+                            if self.temp_unit_now == 'C':
+                                if not (float(self.temperature_data[i]) >= 85 or
+                                        float(self.temperature_data[i]) <= -40 or
+                                        math.isnan(float(self.temperature_data[i]))):
+                                    if not (math.isnan(float(self.humidity_data[i])) or float(
+                                            self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                        self.float_temp_data.append(float(self.temperature_data[i]))
+                                        self.modified_timedate_data.append((self.timedate_data[i]))
+                                        self.float_hum_data.append(float(self.humidity_data[i]))
                     elif self.temp_unit_now == 'F':
-
-                        if not (float(self.temperature_data[i]) >= 185 or
-                                float(self.temperature_data[i]) <= -40 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            if not (math.isnan(float(self.humidity_data[i])) or float(
-                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
-                                self.float_temp_data.append(float(self.temperature_data[i]))
-                                self.modified_timedate_data.append((self.timedate_data[i]))
-                                self.float_hum_data.append(float(self.humidity_data[i]))
+                        if not self.temperature_data[i] == 'ovf':
+                            if not self.humidity_data[i] == 'ovf':
+                                if not (float(self.temperature_data[i]) >= 185 or
+                                        float(self.temperature_data[i]) <= -40 or
+                                        math.isnan(float(self.temperature_data[i]))):
+                                    if not (math.isnan(float(self.humidity_data[i])) or float(
+                                            self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                        self.float_temp_data.append(float(self.temperature_data[i]))
+                                        self.modified_timedate_data.append((self.timedate_data[i]))
+                                        self.float_hum_data.append(float(self.humidity_data[i]))
 
                     elif self.temp_unit_now == 'K':
-
-                        if not (float(self.temperature_data[i]) >= 358.15 or
-                                float(self.temperature_data[i]) <= 233.15 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            if not (math.isnan(float(self.humidity_data[i])) or float(
-                                    self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
-                                self.float_temp_data.append(float(self.temperature_data[i]))
-                                self.modified_timedate_data.append((self.timedate_data[i]))
-                                self.float_hum_data.append(float(self.humidity_data[i]))
+                        if not self.temperature_data[i] == 'ovf':
+                            if not self.humidity_data[i] == 'ovf':
+                                if not (float(self.temperature_data[i]) >= 358.15 or
+                                        float(self.temperature_data[i]) <= 233.15 or
+                                        math.isnan(float(self.temperature_data[i]))):
+                                    if not (math.isnan(float(self.humidity_data[i])) or float(
+                                            self.humidity_data[i]) > 100 or float(self.humidity_data[i]) < 0):
+                                        self.float_temp_data.append(float(self.temperature_data[i]))
+                                        self.modified_timedate_data.append((self.timedate_data[i]))
+                                        self.float_hum_data.append(float(self.humidity_data[i]))
 
                 self.MplWidget.canvas.axes.plot(self.modified_timedate_data, self.float_temp_data, linestyle='solid',
                                                 label='_nolegend_', color='r', marker='.')
@@ -661,27 +671,29 @@ class LoggerPlotWindow(QMainWindow, Ui_ReadLoggerDataWindow):
                 self.modified_timedate_data = []
 
                 for i in range(0, len(self.temperature_data)):
-
-                    if self.temp_unit_now == 'C':
-                        if not (float(self.temperature_data[i]) >= 85 or
-                                float(self.temperature_data[i]) <= -40 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            self.float_temp_data.append(float(self.temperature_data[i]))
-                            self.modified_timedate_data.append((self.timedate_data[i]))
+                    if not self.temperature_data[i] == 'ovf':
+                        if self.temp_unit_now == 'C':
+                            if not (float(self.temperature_data[i]) >= 85 or
+                                    float(self.temperature_data[i]) <= -40 or
+                                    math.isnan(float(self.temperature_data[i]))):
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
 
                     elif self.temp_unit_now == 'F':
-                        if not (float(self.temperature_data[i]) >= 185 or
-                                float(self.temperature_data[i]) <= -40 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            self.float_temp_data.append(float(self.temperature_data[i]))
-                            self.modified_timedate_data.append((self.timedate_data[i]))
+                        if not self.temperature_data[i] == 'ovf':
+                            if not (float(self.temperature_data[i]) >= 185 or
+                                    float(self.temperature_data[i]) <= -40 or
+                                    math.isnan(float(self.temperature_data[i]))):
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
 
                     elif self.temp_unit_now == 'K':
-                        if not (float(self.temperature_data[i]) >= 358.15 or
-                                float(self.temperature_data[i]) <= 233.15 or
-                                math.isnan(float(self.temperature_data[i]))):
-                            self.float_temp_data.append(float(self.temperature_data[i]))
-                            self.modified_timedate_data.append((self.timedate_data[i]))
+                        if not self.temperature_data[i] == 'ovf':
+                            if not (float(self.temperature_data[i]) >= 358.15 or
+                                    float(self.temperature_data[i]) <= 233.15 or
+                                    math.isnan(float(self.temperature_data[i]))):
+                                self.float_temp_data.append(float(self.temperature_data[i]))
+                                self.modified_timedate_data.append((self.timedate_data[i]))
 
                 self.MplWidget.canvas.axes = self.MplWidget.canvas.figure.add_subplot(111)
                 self.MplWidget.canvas.axes.set_xlabel('Date-Time', fontweight='bold')
