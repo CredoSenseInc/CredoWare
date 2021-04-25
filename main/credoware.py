@@ -74,7 +74,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.checkBox_dst.setDisabled(True)
 
-        self.connect_button.hide()
+        self.connect_button.setDisabled(True)
 
         self.actionAbout.triggered.connect(lambda: self.about_window.initialize_and_show())
         self.actionExit.triggered.connect(QApplication.closeAllWindows)
