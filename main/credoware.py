@@ -626,6 +626,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         if self.chk_dev_id == 'CSL-T0.5':
                             free_data_point = (free_bytes - 12) / 2
 
+                        if self.chk_dev_id == 'CSL-SM2':
+                            free_data_point = (free_bytes - 12) / 4
+
                         if self.chk_dev_id == 'CSL-H2 T0.2':
                             free_data_point = (free_bytes - 12) / 8
 
@@ -869,6 +872,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.lineEdit_low_hum.setDisabled(False)
                     self.lineEdit_high_pressure.setDisabled(False)
                     self.lineEdit_low_pressure.setDisabled(False)
+
+                if self.chk_dev_id == 'CSL-SM2':
+                    self.label_device_type.setText('Soil Moisture Logger')
 
 
         except Exception as response_error:

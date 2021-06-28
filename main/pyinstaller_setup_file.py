@@ -3,6 +3,7 @@ import PyInstaller.__main__
 PyInstaller.__main__.run([
     'credoware.py',
     '--onedir',
+    '--windowed',
     '--icon=icon.ico',
     '--name= CredoWare',
     '--add-data=logo.png;.',
