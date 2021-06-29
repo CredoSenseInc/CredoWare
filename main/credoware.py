@@ -684,9 +684,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.connect_button.clicked.connect(self.disconnect_logger)
                 self.connect_buttons()
                 self.waiting_window_end()
-                if response['data'] == 'yes':
-                    self.show_alert_dialog(
-                        "Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
+                # if response['data'] == 'yes':
+                #     self.show_alert_dialog(
+                #         "Clock battery level critical.\nPlease change/insert logger's clock battery (CR1025)")
 
             elif response['task_type'] == TaskTypes.SERIAL_DEV_NAME:
                 self.lineEdit_device_name.setText(response['data'])
